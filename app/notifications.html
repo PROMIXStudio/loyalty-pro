@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Notifications — Loyalty Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--indigo:#4338ca;--violet:#6d28d9;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--muted:#64748b;--border:#e2e8f0;--bg:#f1f5f9;--surface:#fff;--ink:#0d0d1a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);padding-bottom:85px;min-height:100vh}
+.app-header{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;box-shadow:0 2px 12px rgba(67,56,202,.3)}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-logo{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.header-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem}
+.header-sub{font-size:11px;opacity:.7;margin-top:1px}
+.header-btn{width:36px;height:36px;background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
+#sub-banner{display:none}
+.content{padding:1.25rem;max-width:520px;margin:0 auto}
+
+/* Toolbar */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:10px}
+.notif-count{font-size:13px;color:var(--muted)}
+.notif-count strong{color:var(--danger)}
+.btn-lu{padding:.5rem 1rem;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:9px;font-size:12.5px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-lu:hover{border-color:var(--indigo);color:var(--indigo)}
+
+/* Notification item */
+.notif-item{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:1rem 1.25rem;margin-bottom:.75rem;display:flex;gap:12px;cursor:pointer;transition:all .2s;position:relative}
+.notif-item.unread{border-left:4px solid var(--indigo);background:#fafbff}
+.notif-item:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px)}
+.notif-ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.notif-ico.admin{background:#e0e7ff}
+.notif-ico.system{background:#d1fae5}
+.notif-ico.warning{background:#fef3c7}
+.notif-ico.info{background:#dbeafe}
+.notif-body{flex:1;min-width:0}
+.notif-titre{font-weight:600;font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.notif-msg{font-size:12.5px;color:var(--muted);line-height:1.5;max-height:3em;overflow:hidden;text-overflow:ellipsis;}
+.notif-time{font-size:11px;color:var(--muted);margin-top:6px}
+.notif-dot{position:absolute;top:12px;right:12px;width:8px;height:8px;background:var(--indigo);border-radius:50%}
+
+/* Modal détail */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:1.5rem;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 1.25rem}
+.modal-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:1.25rem}
+.modal-ico{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.modal-title-txt{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;line-height:1.3}
+.modal-date{font-size:12px;color:var(--muted);margin-top:4px}
+.modal-msg{font-size:14px;color:#374151;line-height:1.7;white-space:pre-wrap;background:var(--bg);border-radius:12px;padding:1rem}
+
+/* Empty */
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted)}
+.empty-ico{font-size:3.5rem;margin-bottom:1rem}
+.empty-txt{font-size:14px}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:1rem;right:1rem;max-width:400px;margin:0 auto;color:#fff;padding:12px 16px;border-radius:12px;font-size:13.5px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:toastIn .3s ease;text-align:center}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;padding:6px 0 8px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 14px;border-radius:10px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;transition:all .2s}
+.nav-item.active,.nav-item:hover{color:var(--indigo)}
+.nav-ico{font-size:22px;line-height:1}
+.nav-lbl{font-size:10px;font-weight:500}
+@media(min-width:600px){.bottom-nav{max-width:520px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-left">
+    <div class="header-logo">🏆</div>
+    <div>
+      <div class="header-title" id="app-header-title">Ma Boutique</div>
+      <div class="header-sub">Notifications</div>
+    </div>
+  </div>
+  <button class="header-btn" onclick="handleLogout()">🚪</button>
+</div>
+
+<div id="sub-banner"></div>
+
+<div class="content">
+  <div class="toolbar">
+    <div class="notif-count" id="notif-count">Chargement...</div>
+    <button class="btn-lu" onclick="toutMarquerLu()">✅ Tout marquer lu</button>
+  </div>
+  <div id="notif-list">
+    <div class="empty"><div class="empty-ico">⏳</div><div class="empty-txt">Chargement...</div></div>
+  </div>
+</div>
+
+<!-- Modal détail -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-ico admin" id="detail-ico">📣</div>
+      <div>
+        <div class="modal-title-txt" id="detail-titre">—</div>
+        <div class="modal-date" id="detail-date">—</div>
+      </div>
+    </div>
+    <div class="modal-msg" id="detail-msg">—</div>
+    <button onclick="closeModal()" style="width:100%;margin-top:1.25rem;padding:.85rem;background:var(--bg);color:var(--muted);border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">Fermer</button>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item" onclick="location.href='clients.html'"><span class="nav-ico">👥</span><span class="nav-lbl">Clients</span></button>
+  <button class="nav-item" onclick="location.href='scanner.html'"><span class="nav-ico">📷</span><span class="nav-lbl">Scanner</span></button>
+  <button class="nav-item active"><span class="nav-ico">🔔</span><span class="nav-lbl">Notifs</span></button>
+  <button class="nav-item" onclick="location.href='parametres.html'"><span class="nav-ico">⚙️</span><span class="nav-lbl">Réglages</span></button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script src="../assets/js/app-auth.js"></script>
+<script>
+function handleLogout() { window.appLogout(); }
+const boutiqueId = sessionStorage.getItem('lp_boutique_id');
+let allNotifs = [];
+
+function fmtDatetime(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000)   return 'À l\'instant';
+  if (diff < 3600000) return Math.floor(diff/60000) + ' min';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h';
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+function getIco(type) {
+  if (type?.includes('admin')) return {ico:'📣', cls:'admin'};
+  if (type?.includes('system')) return {ico:'⚙️', cls:'system'};
+  if (type?.includes('warning')) return {ico:'⚠️', cls:'warning'};
+  return {ico:'ℹ️', cls:'info'};
+}
+
+async function loadNotifs() {
+  if (!boutiqueId) return;
+  try {
+    // Essayer avec orderBy d'abord
+    let snap;
+    try {
+      snap = await db.collection('notifications')
+        .where('boutiqueId','==', boutiqueId)
+        .orderBy('date','desc').limit(50).get();
+    } catch(e) {
+      // Si index manquant, essayer sans orderBy
+      console.warn('orderBy échoué, essai sans tri:', e.message);
+      snap = await db.collection('notifications')
+        .where('boutiqueId','==', boutiqueId)
+        .limit(50).get();
+    }
+
+    allNotifs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Trier manuellement par date
+    allNotifs.sort((a, b) => {
+      const da = a.date?.toMillis?.() || 0;
+      const db2 = b.date?.toMillis?.() || 0;
+      return db2 - da;
+    });
+
+    renderNotifs();
+  } catch(e) {
+    console.error('Erreur notifications:', e);
+    // Si pas de notifications, afficher vide plutôt qu'erreur
+    if (e.code === 'permission-denied') {
+      document.getElementById('notif-list').innerHTML =
+        '<div class="empty"><div class="empty-ico">🔔</div><div class="empty-txt">Aucune notification pour l instant.</div></div>';
+    } else {
+      document.getElementById('notif-list').innerHTML =
+        '<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-txt">Erreur : ' + e.message + '</div></div>';
+    }
+  }
+}
+
+function renderNotifs() {
+  const unread = allNotifs.filter(n => !n.lu).length;
+  document.getElementById('notif-count').innerHTML =
+    unread > 0
+      ? `<strong>${unread}</strong> non lue${unread>1?'s':''} · ${allNotifs.length} total`
+      : `${allNotifs.length} notification${allNotifs.length>1?'s':''}`;
+
+  if (!allNotifs.length) {
+    document.getElementById('notif-list').innerHTML = `
+      <div class="empty">
+        <div class="empty-ico">🔔</div>
+        <div class="empty-txt">Aucune notification pour l'instant.<br>Les messages de l'administrateur apparaîtront ici.</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('notif-list').innerHTML = allNotifs.map(n => {
+    const {ico, cls} = getIco(n.type);
+    const titre = n.objet || (n.type?.includes('admin') ? 'Message administrateur' : 'Notification système');
+    return `
+    <div class="notif-item ${n.lu?'':'unread'}" onclick="openNotif('${n.id}')">
+      <div class="notif-ico ${cls}">${ico}</div>
+      <div class="notif-body">
+        <div class="notif-titre">${titre}</div>
+        <div class="notif-msg">${n.message||'—'}</div>
+        <div class="notif-time">${fmtDatetime(n.date)}</div>
+      </div>
+      ${!n.lu ? '<div class="notif-dot"></div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+async function openNotif(id) {
+  const n = allNotifs.find(x => x.id === id);
+  if (!n) return;
+
+  const {ico, cls} = getIco(n.type);
+  const titre = n.objet || 'Message administrateur';
+  document.getElementById('detail-ico').textContent = ico;
+  document.getElementById('detail-ico').className   = `modal-ico ${cls}`;
+  document.getElementById('detail-titre').textContent = titre;
+  document.getElementById('detail-date').textContent  = fmtDatetime(n.date);
+  document.getElementById('detail-msg').textContent   = n.message || '—';
+  document.getElementById('modal-detail').classList.add('open');
+
+  // Marquer comme lu
+  if (!n.lu) {
+    try {
+      await db.collection('notifications').doc(id).update({ lu: true });
+      n.lu = true;
+      renderNotifs();
+    } catch(e) {}
+  }
+}
+
+async function toutMarquerLu() {
+  const nonLus = allNotifs.filter(n => !n.lu);
+  if (!nonLus.length) { toast('Toutes les notifications sont déjà lues.', 'success'); return; }
+  try {
+    const batch = db.batch();
+    nonLus.forEach(n => batch.update(db.collection('notifications').doc(n.id), { lu: true }));
+    await batch.commit();
+    allNotifs.forEach(n => n.lu = true);
+    renderNotifs();
+    toast('Toutes les notifications marquées comme lues !', 'success');
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+}
+
+function closeModal() { document.getElementById('modal-detail').classList.remove('open'); }
+document.getElementById('modal-detail').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-detail')) closeModal();
+});
+
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = (type==='success'?'✅ ':'⚠️ ') + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+loadNotifs();
+</script>
+<script>
+// Restriction gérant — cacher paramètres dans la nav
+if (sessionStorage.getItem('lp_role') === 'gerant') {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    if (item.textContent.includes('Réglages')) item.style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>

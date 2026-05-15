@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Scanner — Loyalty Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+:root{--indigo:#4338ca;--violet:#6d28d9;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--muted:#64748b;--border:#e2e8f0;--bg:#f1f5f9;--surface:#fff;--ink:#0d0d1a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);padding-bottom:85px;min-height:100vh}
+.app-header{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;box-shadow:0 2px 12px rgba(67,56,202,.3)}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-logo{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.header-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem}
+.header-sub{font-size:11px;opacity:.7;margin-top:1px}
+.header-btn{width:36px;height:36px;background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
+#sub-banner{display:none}
+.content{padding:1.25rem;max-width:520px;margin:0 auto}
+
+/* Scanner */
+.scanner-card{background:var(--surface);border-radius:20px;border:1px solid var(--border);overflow:hidden;margin-bottom:1.25rem}
+.scanner-header{padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.scanner-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem}
+.scanner-body{position:relative;background:#000;min-height:240px;display:flex;align-items:center;justify-content:center}
+#scanner-container{width:100%;max-width:320px;margin:0 auto}
+#scanner-container video{border-radius:0}
+.scanner-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.scanner-frame{width:200px;height:200px;border:3px solid var(--indigo);border-radius:16px;position:relative}
+.scanner-frame::before,.scanner-frame::after{content:'';position:absolute;width:30px;height:30px;border-color:var(--indigo);border-style:solid}
+.scanner-frame::before{top:-3px;left:-3px;border-width:4px 0 0 4px;border-radius:14px 0 0 0}
+.scanner-frame::after{bottom:-3px;right:-3px;border-width:0 4px 4px 0;border-radius:0 0 14px 0}
+.scan-line{position:absolute;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--indigo),transparent);animation:scanLine 2s ease-in-out infinite}
+@keyframes scanLine{0%{top:0}50%{top:100%}100%{top:0}}
+.scanner-footer{padding:1rem 1.25rem;text-align:center}
+.btn-scan{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(67,56,202,.3)}
+.btn-scan.stop{background:linear-gradient(135deg,var(--danger),#dc2626)}
+.scan-hint{font-size:12px;color:var(--muted);margin-top:.75rem}
+
+/* OU saisir ID manuellement */
+.divider{display:flex;align-items:center;gap:10px;margin:1rem 0;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.manual-input{display:flex;gap:8px}
+.manual-input input{flex:1;padding:.65rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s}
+.manual-input input:focus{border-color:var(--indigo)}
+.btn-search{padding:.65rem 1rem;background:var(--indigo);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+
+/* Fiche client scannée */
+.client-fiche{background:var(--surface);border-radius:20px;border:1px solid var(--border);overflow:hidden;display:none}
+.fiche-top{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;padding:1.5rem;text-align:center}
+.fiche-av{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;margin:0 auto .875rem}
+.fiche-name{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800}
+.fiche-tel{font-size:12px;opacity:.7;margin-top:4px}
+.fiche-pts-row{display:flex;justify-content:center;gap:1.5rem;margin-top:1rem}
+.fiche-pts-item{text-align:center}
+.fiche-pts-val{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800}
+.fiche-pts-lbl{font-size:10px;opacity:.7;margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.fiche-actions{padding:1.25rem}
+.actions-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.875rem}
+.action-tabs{display:flex;background:var(--bg);border-radius:12px;padding:4px;gap:4px;margin-bottom:1.25rem}
+.action-tab{flex:1;padding:.65rem;border-radius:9px;border:none;background:transparent;cursor:pointer;font-size:13.5px;font-weight:500;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all .2s}
+.action-tab.active{background:var(--surface);color:var(--indigo);box-shadow:0 2px 8px rgba(0,0,0,.08);font-weight:600}
+.action-panel{display:none}
+.action-panel.active{display:block}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.field input,.field select{width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s;color:var(--ink)}
+.field input:focus,.field select:focus{border-color:var(--indigo)}
+.pts-preview{background:var(--bg);border-radius:10px;padding:.875rem;margin-bottom:1rem;text-align:center;font-size:13px;color:var(--muted)}
+.pts-preview strong{font-family:'Syne',sans-serif;font-size:1.3rem;color:var(--indigo);display:block;margin-top:4px}
+.btn-action{width:100%;padding:.85rem;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-achat{background:linear-gradient(135deg,var(--success),#059669);color:#fff;box-shadow:0 4px 16px rgba(16,185,129,.3)}
+.btn-echange{background:linear-gradient(135deg,var(--warning),#d97706);color:#fff;box-shadow:0 4px 16px rgba(245,158,11,.3)}
+.btn-action:disabled{opacity:.6;cursor:not-allowed}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.msg{padding:10px 14px;border-radius:9px;font-size:13px;margin-bottom:1rem;display:none;align-items:center;gap:8px}
+.msg.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:flex}
+.msg.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;display:flex}
+.btn-rescan{width:100%;padding:.75rem;background:var(--bg);color:var(--indigo);border:1.5px solid var(--indigo);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:.75rem}
+
+/* Résultat succès */
+.result-card{background:var(--surface);border-radius:20px;border:2px solid var(--success);padding:1.5rem;text-align:center;display:none;margin-top:1rem}
+.result-ico{font-size:3rem;margin-bottom:.875rem}
+.result-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--ink);margin-bottom:.5rem}
+.result-pts{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:var(--success)}
+.result-sub{font-size:13px;color:var(--muted);margin-top:.5rem}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:1rem;right:1rem;max-width:400px;margin:0 auto;color:#fff;padding:12px 16px;border-radius:12px;font-size:13.5px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:toastIn .3s ease;text-align:center}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;padding:6px 0 8px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 14px;border-radius:10px;text-decoration:none;color:var(--muted);transition:all .2s;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
+.nav-item.active,.nav-item:hover{color:var(--indigo)}
+.nav-ico{font-size:22px;line-height:1}
+.nav-lbl{font-size:10px;font-weight:500}
+@media(min-width:600px){.bottom-nav{max-width:520px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-left">
+    <div class="header-logo">🏆</div>
+    <div>
+      <div class="header-title" id="app-header-title">Ma Boutique</div>
+      <div class="header-sub">Scanner QR</div>
+    </div>
+  </div>
+  <button class="header-btn" onclick="handleLogout()">🚪</button>
+</div>
+
+<div id="sub-banner"></div>
+
+<div class="content">
+
+  <!-- Scanner -->
+  <div class="scanner-card">
+    <div class="scanner-header">
+      <div class="scanner-title">📷 Scanner une carte</div>
+      <span style="font-size:12px;color:var(--muted)" id="scan-status">Prêt</span>
+    </div>
+    <div class="scanner-body">
+      <div id="scanner-container"></div>
+      <div class="scanner-overlay">
+        <div class="scanner-frame">
+          <div class="scan-line" id="scan-line" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scanner-footer">
+      <button class="btn-scan" id="btn-scan" onclick="toggleScanner()">
+        <span id="btn-scan-ico">📷</span>
+        <span id="btn-scan-txt">Démarrer le scanner</span>
+      </button>
+      <p class="scan-hint">Pointez la caméra vers le QR Code de la carte de fidélité</p>
+    </div>
+  </div>
+
+  <!-- Saisie manuelle -->
+  <div class="divider">ou rechercher manuellement</div>
+  <div class="manual-input">
+    <input type="text" id="manual-id" placeholder="Nom ou numéro du client...">
+    <button class="btn-search" onclick="searchManual()">🔍 Chercher</button>
+  </div>
+
+  <!-- Fiche client après scan -->
+  <div class="client-fiche" id="client-fiche" style="margin-top:1.25rem">
+    <div class="fiche-top">
+      <div class="fiche-av" id="fiche-av">??</div>
+      <div class="fiche-name" id="fiche-name">—</div>
+      <div class="fiche-tel" id="fiche-tel">—</div>
+      <div class="fiche-pts-row">
+        <div class="fiche-pts-item">
+          <div class="fiche-pts-val" id="f-restants">0</div>
+          <div class="fiche-pts-lbl">Pts restants</div>
+        </div>
+        <div class="fiche-pts-item">
+          <div class="fiche-pts-val" id="f-cumules">0</div>
+          <div class="fiche-pts-lbl">Pts cumulés</div>
+        </div>
+        <div class="fiche-pts-item">
+          <div class="fiche-pts-val" id="f-echanges">0</div>
+          <div class="fiche-pts-lbl">Pts échangés</div>
+        </div>
+      </div>
+    </div>
+    <div class="fiche-actions">
+      <div class="actions-title">Choisir une action</div>
+      <div class="action-tabs">
+        <button class="action-tab active" onclick="setTab('achat',this)">🛒 Achat</button>
+        <button class="action-tab" onclick="setTab('echange',this)">🎁 Échange points</button>
+      </div>
+      <div class="msg" id="msg-action"></div>
+
+      <!-- Panel Achat -->
+      <div class="action-panel active" id="panel-achat">
+        <div class="field">
+          <label>Montant de l'achat</label>
+          <input type="number" id="achat-montant" placeholder="Ex: 5000" min="0" oninput="calcPoints()">
+        </div>
+        <div class="pts-preview" id="pts-preview">
+          Points à gagner : <strong id="pts-gagnes">0 pts</strong>
+        </div>
+        <button class="btn-action btn-achat" id="btn-achat" onclick="enregistrerAchat()">
+          <span id="btn-achat-txt">✅ Valider l'achat</span>
+          <div class="spinner" id="spin-achat"></div>
+        </button>
+      </div>
+
+      <!-- Panel Échange -->
+      <div class="action-panel" id="panel-echange">
+        <div class="field">
+          <label>Produit à échanger</label>
+          <input type="text" id="echange-produit" placeholder="Ex: Café gratuit, Remise 500F...">
+        </div>
+        <div class="field">
+          <label>Points à déduire</label>
+          <input type="number" id="echange-pts" placeholder="Ex: 50" min="1" oninput="checkEchange()">
+        </div>
+        <div class="pts-preview" id="echange-preview">
+          Points restants après échange : <strong id="pts-apres">— pts</strong>
+        </div>
+        <button class="btn-action btn-echange" id="btn-echange" onclick="enregistrerEchange()">
+          <span id="btn-echange-txt">🎁 Valider l'échange</span>
+          <div class="spinner" id="spin-echange"></div>
+        </button>
+      </div>
+
+      <button class="btn-rescan" onclick="resetScanner()">🔄 Scanner un autre client</button>
+    </div>
+  </div>
+
+  <!-- Résultat -->
+  <div class="result-card" id="result-card">
+    <div class="result-ico" id="result-ico">✅</div>
+    <div class="result-title" id="result-title">Action enregistrée !</div>
+    <div class="result-pts" id="result-pts"></div>
+    <div class="result-sub" id="result-sub"></div>
+    <button class="btn-rescan" style="margin-top:1.25rem" onclick="resetAll()">📷 Nouveau scan</button>
+  </div>
+
+</div>
+
+<!-- Bottom nav -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item" onclick="location.href='clients.html'"><span class="nav-ico">👥</span><span class="nav-lbl">Clients</span></button>
+  <button class="nav-item active"><span class="nav-ico">📷</span><span class="nav-lbl">Scanner</span></button>
+  <button class="nav-item" onclick="location.href='notifications.html'"><span class="nav-ico">🔔</span><span class="nav-lbl">Notifs</span></button>
+  <button class="nav-item" onclick="location.href='parametres.html'"><span class="nav-ico">⚙️</span><span class="nav-lbl">Réglages</span></button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script src="../assets/js/app-auth.js"></script>
+<script>
+function handleLogout() { window.appLogout(); }
+
+const boutiqueId = sessionStorage.getItem('lp_boutique_id');
+let html5QrCode  = null;
+let scanning     = false;
+let currentClient = null;
+let currentClientId = null;
+let boutique     = null;
+
+// Charger config boutique
+async function loadBoutique() {
+  if (!boutiqueId) return;
+  const snap = await db.collection('boutiques').doc(boutiqueId).get();
+  if (snap.exists) boutique = snap.data();
+}
+loadBoutique();
+
+// ── Scanner QR ────────────────────────────────────────────────
+async function toggleScanner() {
+  if (scanning) {
+    await stopScanner();
+  } else {
+    await startScanner();
+  }
+}
+
+async function startScanner() {
+  try {
+
+    // Nettoyer ancienne instance
+    if (html5QrCode) {
+      try {
+        await html5QrCode.stop();
+      } catch(e) {}
+      try {
+        await html5QrCode.clear();
+      } catch(e) {}
+    }
+
+    html5QrCode = new Html5Qrcode("scanner-container");
+
+    const config = {
+      fps: 15,
+      qrbox: function(viewfinderWidth, viewfinderHeight) {
+
+        // Taille dynamique du cadre
+        const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+
+        return {
+          width: Math.floor(minEdge * 0.75),
+          height: Math.floor(minEdge * 0.75)
+        };
+      },
+
+      aspectRatio: 1.0,
+      disableFlip: false,
+      rememberLastUsedCamera: true,
+      experimentalFeatures: {
+        useBarCodeDetectorIfSupported: true
+      }
+    };
+
+await html5QrCode.start(
+  { facingMode: "environment" },
+  config,
+  onScanSuccess,
+  () => {}
+);
+
+    scanning = true;
+
+    document.getElementById('btn-scan').classList.add('stop');
+    document.getElementById('btn-scan-ico').textContent = '⏹️';
+    document.getElementById('btn-scan-txt').textContent = 'Arrêter le scanner';
+    document.getElementById('scan-status').textContent = '🔴 Scan en cours...';
+    document.getElementById('scan-line').style.display = 'block';
+
+  } catch(e) {
+
+    console.error(e);
+
+    toast(
+      "Impossible d'accéder à la caméra. Vérifiez les permissions.",
+      "error"
+    );
+  }
+}
+async function stopScanner() {
+  if (html5QrCode && scanning) {
+    try { await html5QrCode.stop(); } catch(e) {}
+    html5QrCode = null;
+  }
+  scanning = false;
+  document.getElementById('btn-scan').classList.remove('stop');
+  document.getElementById('btn-scan-ico').textContent = '📷';
+  document.getElementById('btn-scan-txt').textContent = 'Démarrer le scanner';
+  document.getElementById('scan-status').textContent = 'Prêt';
+  document.getElementById('scan-line').style.display = 'none';
+}
+
+let lastScan = '';
+let lastScanTime = 0;
+
+async function onScanSuccess(qrText) {
+  // Éviter les doubles détections
+  const now = Date.now();
+  if (qrText === lastScan && now - lastScanTime < 3000) return;
+  lastScan = qrText;
+  lastScanTime = now;
+
+  await stopScanner();
+  document.getElementById('scan-status').textContent = '✅ QR lu !';
+  console.log('QR Code détecté:', qrText);
+
+  // Format attendu : LP:boutiqueId:clientId
+const parts = qrText.split(':');
+if (parts.length !== 3 || parts[0] !== 'LP') {
+    toast('QR Code non reconnu...', 'error');
+    return;
+}
+  const qrBoutiqueId = parts[1];
+  const qrClientId   = parts[2];
+
+  if (qrBoutiqueId !== boutiqueId) {
+    toast('Ce QR Code appartient à une autre boutique.', 'error');
+    return;
+  }
+  await loadClient(qrClientId);
+}
+
+// ── Recherche manuelle ────────────────────────────────────────
+async function searchManual() {
+  const query = document.getElementById('manual-id').value.trim().toLowerCase();
+  if (!query) { toast('Entrez un nom ou numéro.', 'error'); return; }
+  try {
+    const snap = await db.collection('boutiques').doc(boutiqueId)
+      .collection('clients').get();
+    const found = snap.docs.find(d => {
+      const c = d.data();
+      return (c.nom||'').toLowerCase().includes(query) ||
+             (c.telephone||'').toLowerCase().includes(query);
+    });
+    if (found) {
+      await loadClient(found.id);
+    } else {
+      toast('Aucun client trouvé.', 'error');
+    }
+  } catch(e) { toast('Erreur de recherche.', 'error'); }
+}
+
+// ── Charger client ────────────────────────────────────────────
+async function loadClient(clientId) {
+  try {
+    const snap = await db.collection('boutiques').doc(boutiqueId)
+      .collection('clients').doc(clientId).get();
+    if (!snap.exists) { toast('Client introuvable.', 'error'); return; }
+    currentClient   = snap.data();
+    currentClientId = clientId;
+    afficherFiche();
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+}
+
+function afficherFiche() {
+  const c   = currentClient;
+  const ini = (c.nom||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('fiche-av').textContent    = ini;
+  document.getElementById('fiche-name').textContent  = c.nom || '—';
+  document.getElementById('fiche-tel').textContent   = '📞 ' + (c.telephone||'—');
+  document.getElementById('f-restants').textContent  = c.pointsRestants || 0;
+  document.getElementById('f-cumules').textContent   = c.pointsCumules  || 0;
+  document.getElementById('f-echanges').textContent  = c.pointsEchanges || 0;
+  document.getElementById('client-fiche').style.display = 'block';
+  document.getElementById('achat-montant').value = '';
+  document.getElementById('pts-gagnes').textContent = '0 pts';
+  hideMsg('msg-action');
+  calcPoints();
+}
+
+// ── Calcul points ─────────────────────────────────────────────
+function calcPoints() {
+  const montant = parseFloat(document.getElementById('achat-montant').value) || 0;
+  const config  = boutique?.pointsConfig || { mode:'regle_de_trois', montantRef:1000, pointsRef:10 };
+  let pts = 0;
+  if (config.mode === 'regle_de_trois') {
+    pts = Math.floor((montant * config.pointsRef) / config.montantRef);
+  } else if (config.mode === 'pourcentage') {
+    pts = Math.floor(montant * config.pourcentage / 100);
+  } else if (config.mode === 'fixe') {
+    pts = montant > 0 ? parseInt(config.pointsFixes) : 0;
+  }
+  document.getElementById('pts-gagnes').textContent = pts + ' pts';
+  return pts;
+}
+
+function checkEchange() {
+  const ptsDed  = parseInt(document.getElementById('echange-pts').value) || 0;
+  const restant = (currentClient?.pointsRestants || 0) - ptsDed;
+  const el      = document.getElementById('pts-apres');
+  el.textContent = restant + ' pts';
+  el.style.color = restant < 0 ? 'var(--danger)' : 'var(--success)';
+}
+
+function setTab(tab, btn) {
+  document.querySelectorAll('.action-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.action-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  hideMsg('msg-action');
+}
+
+// ── Enregistrer achat ─────────────────────────────────────────
+async function enregistrerAchat() {
+  const montant = parseFloat(document.getElementById('achat-montant').value);
+  if (!montant || montant <= 0) { showMsg('msg-action','Entrez un montant valide.','error'); return; }
+  const pts = calcPoints();
+  if (pts <= 0) { showMsg('msg-action','Le montant ne génère aucun point. Vérifiez la configuration.','error'); return; }
+
+  setActionBtn('achat', true);
+  try {
+    const clientRef = db.collection('boutiques').doc(boutiqueId)
+      .collection('clients').doc(currentClientId);
+
+    await db.runTransaction(async t => {
+      const snap = await t.get(clientRef);
+      const d    = snap.data();
+      t.update(clientRef, {
+        pointsCumules:  (d.pointsCumules  || 0) + pts,
+        pointsRestants: (d.pointsRestants || 0) + pts
+      });
+      t.set(clientRef.collection('transactions').doc(), {
+        type: 'achat', montant, points: pts,
+        date: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    // Recharger client
+    const snap = await clientRef.get();
+    currentClient = snap.data();
+
+    // Message WhatsApp
+    const tel     = (currentClient.telephone||'').replace(/[^0-9+]/g,'');
+    const msgTpl  = boutique?.messagesConfig?.achat ||
+      `Bonjour {{nom}} ! ✅\n\n*{{boutique}}* confirme votre achat.\n\n🛒 Montant : {{montant}} FCFA\n⭐ Points gagnés : +{{pts}} pts\n💰 Points restants : {{restants}} pts\n\nMerci ! 😊`;
+    const msg = msgTpl
+      .replace('{{nom}}',      currentClient.nom||'')
+      .replace('{{boutique}}', boutique?.nom||'')
+      .replace('{{montant}}',  montant)
+      .replace('{{pts}}',      pts)
+      .replace('{{restants}}', currentClient.pointsRestants||0);
+
+    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+
+    // Afficher résultat
+    showResult('✅', 'Achat enregistré !', `+${pts} points gagnés`,
+      `Nouveau solde : ${currentClient.pointsRestants} pts`);
+
+  } catch(e) { showMsg('msg-action','Erreur : '+e.message,'error'); }
+  setActionBtn('achat', false);
+}
+
+// ── Enregistrer échange ───────────────────────────────────────
+async function enregistrerEchange() {
+  const produit = document.getElementById('echange-produit').value.trim();
+  const ptsDed  = parseInt(document.getElementById('echange-pts').value);
+
+  if (!produit) { showMsg('msg-action','Entrez le produit échangé.','error'); return; }
+  if (!ptsDed || ptsDed <= 0) { showMsg('msg-action','Entrez les points à déduire.','error'); return; }
+  if (ptsDed > (currentClient?.pointsRestants||0)) {
+    showMsg('msg-action','Points insuffisants. Le client n\'a que '+currentClient.pointsRestants+' pts.','error');
+    return;
+  }
+
+  setActionBtn('echange', true);
+  try {
+    const clientRef = db.collection('boutiques').doc(boutiqueId)
+      .collection('clients').doc(currentClientId);
+
+    await db.runTransaction(async t => {
+      const snap = await t.get(clientRef);
+      const d    = snap.data();
+      if (d.pointsRestants < ptsDed) throw new Error('Points insuffisants');
+      t.update(clientRef, {
+        pointsRestants: d.pointsRestants - ptsDed,
+        pointsEchanges: (d.pointsEchanges||0) + ptsDed
+      });
+      t.set(clientRef.collection('transactions').doc(), {
+        type: 'echange', produit, points: -ptsDed,
+        date: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+
+    const snap = await clientRef.get();
+    currentClient = snap.data();
+
+    // Message WhatsApp
+    const tel    = (currentClient.telephone||'').replace(/[^0-9+]/g,'');
+    const msgTpl = boutique?.messagesConfig?.echange ||
+      `Bonjour {{nom}} ! 🎁\n\n*{{boutique}}* confirme votre échange.\n\n🎁 Produit : {{produit}}\n➖ Points utilisés : {{pts}} pts\n💰 Points restants : {{restants}} pts\n\nProfitez bien ! 🥳`;
+    const msg = msgTpl
+      .replace('{{nom}}',      currentClient.nom||'')
+      .replace('{{boutique}}', boutique?.nom||'')
+      .replace('{{produit}}',  produit)
+      .replace('{{pts}}',      ptsDed)
+      .replace('{{restants}}', currentClient.pointsRestants||0);
+
+    window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+
+    showResult('🎁', 'Échange effectué !', `-${ptsDed} points`,
+      `${produit} · Solde restant : ${currentClient.pointsRestants} pts`);
+
+  } catch(e) { showMsg('msg-action','Erreur : '+e.message,'error'); }
+  setActionBtn('echange', false);
+}
+
+function showResult(ico, titre, pts, sub) {
+  document.getElementById('client-fiche').style.display = 'none';
+  document.getElementById('result-ico').textContent   = ico;
+  document.getElementById('result-title').textContent = titre;
+  document.getElementById('result-pts').textContent   = pts;
+  document.getElementById('result-sub').textContent   = sub;
+  document.getElementById('result-card').style.display = 'block';
+}
+
+function resetScanner() {
+  currentClient = null; currentClientId = null;
+  document.getElementById('client-fiche').style.display = 'none';
+  document.getElementById('result-card').style.display  = 'none';
+  document.getElementById('manual-id').value = '';
+}
+function resetAll() { resetScanner(); }
+
+// ── Helpers ───────────────────────────────────────────────────
+function setActionBtn(type, on) {
+  const btn = document.getElementById('btn-'+type);
+  const spin = document.getElementById('spin-'+type);
+  const txt  = document.getElementById('btn-'+type+'-txt');
+  btn.disabled = on;
+  spin.style.display = on ? 'block' : 'none';
+  txt.style.opacity  = on ? '0' : '1';
+}
+function showMsg(id, txt, type) {
+  const el = document.getElementById(id);
+  el.className = `msg ${type}`;
+  el.innerHTML = `<span>${type==='error'?'⚠️':'✅'}</span> ${txt}`;
+  el.style.display = 'flex';
+}
+function hideMsg(id) { document.getElementById(id).style.display = 'none'; }
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = (type==='success'?'✅ ':'⚠️ ') + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// Arrêter scanner quand on quitte la page
+window.addEventListener('beforeunload', () => {
+  if (html5QrCode && scanning) html5QrCode.stop();
+});
+</script>
+<script>
+// Restriction gérant — cacher paramètres dans la nav
+if (sessionStorage.getItem('lp_role') === 'gerant') {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    if (item.textContent.includes('Réglages')) item.style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>

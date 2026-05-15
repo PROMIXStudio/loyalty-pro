@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages — Loyalty Pro Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+
+:root{--ink:#0d0d1a;--ink2:#1a1a2e;--indigo:#4338ca;--indigo-l:#e0e7ff;--violet:#6d28d9;--gold:#f59e0b;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--muted:#64748b;--border:#e2e8f0;--bg:#f1f5f9;--surface:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
+/* SIDEBAR */
+.sidebar{width:250px;background:var(--ink2);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;padding:1.5rem 1rem;z-index:100;transition:transform .3s;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:1.5rem;flex-shrink:0}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--indigo),var(--violet));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-txt{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#fff}
+.logo-txt span{color:var(--gold)}
+.logo-badge{font-size:9px;font-weight:700;background:var(--indigo);color:#fff;padding:2px 6px;border-radius:4px;margin-left:auto;text-transform:uppercase}
+.nav-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1.5px;padding:0 10px;margin:1rem 0 .5rem;display:block;width:100%}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;color:rgba(255,255,255,.55);text-decoration:none;font-size:13.5px;font-weight:500;margin-bottom:2px;transition:all .2s;width:100%}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:linear-gradient(135deg,rgba(67,56,202,.6),rgba(109,40,217,.4));color:#fff}
+.nav-item .ico{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.admin-info{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.admin-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--violet));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.admin-nm{font-size:12px;font-weight:600;color:#fff}
+.admin-rl{font-size:11px;color:rgba(255,255,255,.35)}
+.btn-logout{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;width:100%;background:rgba(239,68,68,.1);color:#fca5a5;border:none;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;margin-top:8px;transition:all .2s}
+.btn-logout:hover{background:rgba(239,68,68,.2)}
+/* MAIN */
+.main{margin-left:250px;flex:1;padding:2rem;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+.topbar h1{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--ink)}
+.topbar p{font-size:13px;color:var(--muted);margin-top:2px}
+/* BOUTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:.6rem 1.2rem;border-radius:9px;font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:'DM Sans',sans-serif;white-space:nowrap;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-ghost{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:.35rem .75rem;font-size:12px}
+/* CARDS */
+.card{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:1.5rem}
+.card-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:1.25rem}
+/* TABLES */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--bg);font-weight:600;text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid #f8fafc;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%}
+.b-actif{background:#d1fae5;color:#065f46}.b-actif::before{background:#10b981}
+.b-essai{background:#dbeafe;color:#1e40af}.b-essai::before{background:#3b82f6}
+.b-alerte{background:#fef3c7;color:#92400e}.b-alerte::before{background:#f59e0b}
+.b-critique{background:#fee2e2;color:#991b1b}.b-critique::before{background:#ef4444}
+.b-expire{background:#f3f4f6;color:#374151}.b-expire::before{background:#9ca3af}
+.b-suspendu{background:#fce7f3;color:#9d174d}.b-suspendu::before{background:#ec4899}
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--bg)}
+.form-group{margin-bottom:1.1rem}
+.form-group label{display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:5px}
+.form-control{width:100%;padding:.65rem .9rem;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s;color:var(--ink)}
+.form-control:focus{border-color:var(--indigo)}
+textarea.form-control{resize:vertical;min-height:100px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:toastIn .3s ease;max-width:320px}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}.toast.info{background:var(--indigo)}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* SPINNER */
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* EMPTY */
+.empty-state{text-align:center;padding:2.5rem;color:var(--muted);font-size:13px}
+/* HAMBURGER */
+.hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--indigo);color:#fff;border:none;border-radius:8px;width:38px;height:38px;font-size:20px;cursor:pointer;align-items:center;justify-content:center}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}
+  .mob-overlay.show{display:block}
+  .main{margin-left:0;padding:1rem;padding-top:4rem}
+  .hamburger{display:flex}
+  .form-row{grid-template-columns:1fr}
+}
+
+.page-grid{display:grid;grid-template-columns:1fr 380px;gap:1.5rem;align-items:start}
+.card{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:1.5rem}
+.card-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
+
+/* Tabs canal */
+.canal-tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.canal-tab{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;border:2px solid var(--border);background:var(--surface);cursor:pointer;font-size:13.5px;font-weight:500;transition:all .2s;font-family:'DM Sans',sans-serif}
+.canal-tab:hover{border-color:var(--indigo)}
+.canal-tab.active{border-color:var(--indigo);background:var(--indigo-l);color:var(--indigo)}
+.canal-tab.wa.active{border-color:#25d366;background:#f0fdf4;color:#166534}
+
+/* Cibles */
+.cible-section{margin-bottom:1.5rem}
+.cible-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem}
+.cible-options{display:flex;gap:8px;flex-wrap:wrap}
+.cible-btn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;transition:all .2s}
+.cible-btn:hover{border-color:var(--indigo)}
+.cible-btn.active{border-color:var(--indigo);background:var(--indigo-l);color:var(--indigo);font-weight:500}
+.boutiques-select{display:none;margin-top:.75rem}
+.boutiques-select.show{display:block}
+.boutique-checkboxes{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;padding:4px}
+.boutique-checkbox{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .15s}
+.boutique-checkbox:hover{background:var(--bg)}
+.boutique-checkbox input{width:16px;height:16px;cursor:pointer;accent-color:var(--indigo)}
+.boutique-checkbox label{font-size:13px;cursor:pointer;flex:1}
+.boutique-checkbox .bc-id{font-size:11px;color:var(--muted);font-family:monospace}
+
+/* Formulaire message */
+.form-group{margin-bottom:1.1rem}
+.form-group label{display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:5px}
+.form-control{width:100%;padding:.65rem .9rem;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s;color:var(--ink)}
+.form-control:focus{border-color:var(--indigo)}
+textarea.form-control{resize:vertical;min-height:120px;line-height:1.6}
+
+/* Variables */
+.vars-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.25rem}
+.var-chip{padding:4px 10px;border-radius:6px;background:var(--indigo-l);color:var(--indigo);font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;border:1px solid transparent}
+.var-chip:hover{background:var(--indigo);color:#fff}
+
+/* Prévisualisation */
+.preview-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:1.25rem;font-size:13px;line-height:1.7;color:#166534;white-space:pre-wrap;min-height:80px;word-break:break-word}
+.preview-box.wa{background:#dcfce7;border-color:#86efac}
+
+/* Stats envoi */
+.send-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.ss-card{background:var(--bg);border-radius:10px;padding:.875rem 1rem;text-align:center;border:1px solid var(--border)}
+.ss-val{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--indigo)}
+.ss-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Historique */
+.hist-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #f8fafc}
+.hist-item:last-child{border-bottom:none}
+.hist-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.hist-ico.wa{background:#dcfce7}.hist-ico.notif{background:var(--indigo-l)}.hist-ico.mail{background:#fef3c7}
+.hist-body{flex:1}
+.hist-titre{font-size:13px;font-weight:600;color:var(--ink)}
+.hist-dest{font-size:11px;color:var(--muted);margin-top:1px}
+.hist-time{font-size:11px;color:var(--muted);white-space:nowrap}
+
+.empty-state{text-align:center;padding:2rem;color:var(--muted);font-size:13px}
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:.875rem 1.25rem;font-size:13px;color:#1d4ed8;line-height:1.6;margin-bottom:1.25rem}
+
+.hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--indigo);color:#fff;border:none;border-radius:8px;width:38px;height:38px;font-size:20px;cursor:pointer;align-items:center;justify-content:center}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+@media(max-width:1000px){.page-grid{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}
+  .mob-overlay.show{display:block}.main{margin-left:0;padding:1rem;padding-top:4rem}
+  .hamburger{display:flex}.send-stats{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="mob-overlay" id="mob-overlay" onclick="toggleSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏆</div>
+    <div class="logo-txt">Loyalty<span>Pro</span></div>
+    <span class="logo-badge">Admin</span>
+  </div>
+  <div class="nav-section">Principal</div>
+  <a class="nav-item" href="dashboard.html"><span class="ico">📊</span> Tableau de bord</a>
+  <a class="nav-item" href="boutiques.html"><span class="ico">🏪</span> Boutiques</a>
+  <a class="nav-item" href="proprietaires.html"><span class="ico">👥</span> Propriétaires</a>
+  <a class="nav-item" href="abonnements.html"><span class="ico">📅</span> Abonnements</a>
+  <div class="nav-section">Outils</div>
+  <a class="nav-item" href="test-mode.html"><span class="ico">🧪</span> Mode test</a>
+  <a class="nav-item active" href="messages.html"><span class="ico">📣</span> Messages</a>
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-av" id="admin-av">A</div>
+      <div>
+        <div class="admin-nm" id="admin-nm">Admin</div>
+        <div class="admin-rl">Super administrateur</div>
+      </div>
+    </div>
+    <button class="btn-logout" type="button" onclick="handleLogout()">🚪 Se déconnecter</button>
+  </div>
+</nav>
+
+<main class="main">
+<div class="topbar">
+    <div>
+      <h1>📣 Messages</h1>
+      <p>Envoyez des messages individuels ou collectifs à vos boutiques</p>
+    </div>
+  </div>
+
+  <div class="page-grid">
+
+    <!-- ── FORMULAIRE D'ENVOI ── -->
+    <div>
+      <div class="card">
+        <div class="card-title">✉️ Composer un message</div>
+
+        <!-- Canal -->
+        <div class="form-group">
+          <label>Canal d'envoi</label>
+          <div class="canal-tabs">
+            <button class="canal-tab active" onclick="setCanal('notif',this)">🔔 Notification app</button>
+            <button class="canal-tab wa" onclick="setCanal('whatsapp',this)">💬 WhatsApp</button>
+          </div>
+        </div>
+
+        <input type="hidden" id="canal" value="notif">
+
+        <!-- Cibles -->
+        <div class="cible-section">
+          <div class="cible-title">Destinataires</div>
+          <div class="cible-options">
+            <button class="cible-btn active" onclick="setCible('toutes',this)">🌍 Toutes les boutiques actives</button>
+            <button class="cible-btn" onclick="setCible('selection',this)">☑️ Sélection manuelle</button>
+          </div>
+          <div class="boutiques-select" id="boutiques-select">
+            <div class="boutique-checkboxes" id="boutique-checkboxes">
+              <div class="empty-state">Chargement...</div>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" id="cible" value="toutes">
+
+        <!-- Stats destinataires -->
+        <div class="send-stats">
+          <div class="ss-card"><div class="ss-val" id="ss-total">—</div><div class="ss-lbl">Boutiques actives</div></div>
+          <div class="ss-card"><div class="ss-val" id="ss-selected" style="color:var(--success)">—</div><div class="ss-lbl">Sélectionnées</div></div>
+          <div class="ss-card"><div class="ss-val" id="ss-clients" style="color:var(--violet)">—</div><div class="ss-lbl">Clients touchés</div></div>
+        </div>
+
+        <!-- Objet -->
+        <div class="form-group">
+          <label>Objet / Titre</label>
+          <input class="form-control" id="msg-objet" placeholder="Ex: Mise à jour importante de l'application" oninput="updatePreview()">
+        </div>
+
+        <!-- Message -->
+        <div class="form-group">
+          <label>Message</label>
+          <div class="vars-row">
+            <span class="var-chip" onclick="insertVar('{{nomBoutique}}')">{{nomBoutique}}</span>
+            <span class="var-chip" onclick="insertVar('{{proprietaire}}')">{{proprietaire}}</span>
+            <span class="var-chip" onclick="insertVar('{{dateFin}}')">{{dateFin}}</span>
+            <span class="var-chip" onclick="insertVar('{{jrsRestants}}')">{{jrsRestants}}</span>
+          </div>
+          <textarea class="form-control" id="msg-contenu" placeholder="Rédigez votre message ici...&#10;&#10;Vous pouvez utiliser les variables ci-dessus pour personnaliser le message par boutique." oninput="updatePreview()"></textarea>
+        </div>
+
+        <!-- Bouton envoyer -->
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" id="btn-envoyer" onclick="envoyer()" style="flex:1">
+            <span id="btn-env-txt">📤 Envoyer</span>
+            <div class="spinner" id="spin-env"></div>
+          </button>
+          <button class="btn btn-ghost" onclick="resetForm()">🗑️ Vider</button>
+        </div>
+
+        <div class="info-box" style="margin-top:1rem">
+          ℹ️ Les <strong>notifications app</strong> sont reçues dans l'onglet Notifications de chaque boutique.<br>
+          Les messages <strong>WhatsApp</strong> ouvrent l'application WhatsApp pour chaque numéro (envoi manuel requis boutique par boutique).
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRÉVISUALISATION + HISTORIQUE ── -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem">
+
+      <!-- Prévisualisation -->
+      <div class="card">
+        <div class="card-title">👁️ Prévisualisation</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:.75rem" id="preview-canal-label">Notification app</div>
+        <div class="preview-box" id="preview-box">Votre message apparaîtra ici...</div>
+      </div>
+
+      <!-- Historique -->
+      <div class="card">
+        <div class="card-title">
+          📋 Historique
+          <button class="btn btn-ghost btn-sm" onclick="loadHistorique()" style="margin-left:auto">Actualiser</button>
+        </div>
+        <div id="historique-list">
+          <div class="empty-state">Chargement...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/auth.js"></script>
+<script>
+
+function handleLogout() { window.lpLogout ? window.lpLogout() : (sessionStorage.clear(), window.location.replace("index.html")); }
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mob-overlay').classList.toggle('show');
+}
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = (type==='success'?'✅ ':type==='error'?'⚠️ ':'ℹ️ ') + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function fmtDatetime(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function fmtMontant(n) { return Number(n||0).toLocaleString('fr-FR') + ' F'; }
+function getStatut(b) {
+  if (b.statut === 'suspendu') return 'suspendu';
+  const fin = b.abonnement?.fin?.toMillis?.() || 0;
+  const diff = fin - Date.now();
+  const jrs = Math.ceil(diff / 86400000);
+  if (diff <= 0) return 'expire';
+  if (jrs <= 1)  return 'critique';
+  if (jrs <= 3)  return 'alerte';
+  if (b.statut === 'essai') return 'essai';
+  return 'actif';
+}
+function jrsRestants(b) {
+  return Math.ceil(((b.abonnement?.fin?.toMillis?.() || 0) - Date.now()) / 86400000);
+}
+const BADGE_MAP = {
+  actif:    ['b-actif',    '✅ Actif'],    essai:    ['b-essai',    '🔵 Essai'],
+  alerte:   ['b-alerte',   '⚠️ Alerte'],   critique: ['b-critique', '🔴 Critique'],
+  expire:   ['b-expire',   '⛔ Expiré'],   suspendu: ['b-suspendu', '🔒 Suspendu'],
+};
+function badgeHTML(st) {
+  const [cls,lbl] = BADGE_MAP[st] || BADGE_MAP['expire'];
+  return '<span class="badge ' + cls + '">' + lbl + '</span>';
+}
+function setBtn(btnId, spinId, txtId, on) {
+  document.getElementById(btnId).disabled = on;
+  document.getElementById(spinId).style.display = on ? 'block' : 'none';
+  if (txtId) document.getElementById(txtId).style.opacity = on ? '0' : '1';
+}
+
+let allBoutiques  = [];
+let cibleMode     = 'toutes';
+let canalMode     = 'notif';
+
+// ── Canal ─────────────────────────────────────────────────────
+function setCanal(canal, btn) {
+  canalMode = canal;
+  document.querySelectorAll('.canal-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('canal').value = canal;
+  const lbl = document.getElementById('preview-canal-label');
+  const box = document.getElementById('preview-box');
+  if (canal === 'whatsapp') {
+    lbl.textContent = '💬 Aperçu WhatsApp';
+    box.classList.add('wa');
+  } else {
+    lbl.textContent = '🔔 Notification app';
+    box.classList.remove('wa');
+  }
+  updatePreview();
+}
+
+// ── Cible ─────────────────────────────────────────────────────
+function setCible(mode, btn) {
+  cibleMode = mode;
+  document.querySelectorAll('.cible-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('cible').value = mode;
+  const sel = document.getElementById('boutiques-select');
+  if (mode === 'selection') {
+    sel.classList.add('show');
+  } else {
+    sel.classList.remove('show');
+    updateStats();
+  }
+  updateStats();
+}
+
+// ── Chargement boutiques ──────────────────────────────────────
+async function loadBoutiques() {
+  try {
+    const snap = await db.collection('boutiques').get();
+    allBoutiques = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(b => {
+        const fin = b.abonnement?.fin?.toMillis?.() || 0;
+        return fin > Date.now() && b.statut !== 'suspendu';
+      });
+
+    // Remplir les checkboxes
+    const container = document.getElementById('boutique-checkboxes');
+    container.innerHTML = allBoutiques.map(b => `
+      <div class="boutique-checkbox">
+        <input type="checkbox" id="cb-${b.id}" value="${b.id}" onchange="updateStats()">
+        <label for="cb-${b.id}">
+          <span>${b.nom || b.id}</span>
+          <span class="bc-id">${b.id}</span>
+        </label>
+        <span style="font-size:11px;color:var(--muted)">${b.totalClients||0} clients</span>
+      </div>`).join('');
+
+    updateStats();
+  } catch(e) {
+    toast('Erreur chargement boutiques : ' + e.message, 'error');
+  }
+}
+
+// ── Stats destinataires ───────────────────────────────────────
+function updateStats() {
+  const actives = allBoutiques.length;
+  let selected, clients;
+
+  if (cibleMode === 'toutes') {
+    selected = actives;
+    clients  = allBoutiques.reduce((s,b) => s+(b.totalClients||0), 0);
+  } else {
+    const checked = [...document.querySelectorAll('#boutique-checkboxes input:checked')];
+    const ids = checked.map(c => c.value);
+    selected = ids.length;
+    clients  = allBoutiques.filter(b => ids.includes(b.id)).reduce((s,b) => s+(b.totalClients||0), 0);
+  }
+
+  document.getElementById('ss-total').textContent    = actives;
+  document.getElementById('ss-selected').textContent = selected;
+  document.getElementById('ss-clients').textContent  = clients >= 1000 ? (clients/1000).toFixed(1)+'k' : clients;
+}
+
+// ── Variables dans le message ─────────────────────────────────
+function insertVar(variable) {
+  const ta = document.getElementById('msg-contenu');
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  ta.value = ta.value.slice(0, start) + variable + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = start + variable.length;
+  ta.focus();
+  updatePreview();
+}
+
+// ── Prévisualisation ──────────────────────────────────────────
+function updatePreview() {
+  const objet   = document.getElementById('msg-objet').value.trim();
+  const contenu = document.getElementById('msg-contenu').value.trim();
+  const box     = document.getElementById('preview-box');
+
+  if (!contenu) { box.textContent = 'Votre message apparaîtra ici...'; return; }
+
+  // Exemple avec la première boutique
+  const ex = allBoutiques[0] || { nom: 'Ma Boutique', proprietaire: 'Jean Dupont' };
+  const fin = ex.abonnement?.fin?.toMillis?.() || 0;
+  const jrs = Math.ceil((fin - Date.now()) / 86400000);
+  const dateFin = fin ? new Date(fin).toLocaleDateString('fr-FR') : '—';
+
+  let msg = (objet ? objet + '\n\n' : '') + contenu;
+  msg = msg
+    .replace(/\{\{nomBoutique\}\}/g, ex.nom || ex.id)
+    .replace(/\{\{proprietaire\}\}/g, ex.proprietaire || '—')
+    .replace(/\{\{dateFin\}\}/g, dateFin)
+    .replace(/\{\{jrsRestants\}\}/g, jrs > 0 ? jrs+'j' : 'Expiré');
+
+  box.textContent = msg;
+}
+
+// ── Envoi ─────────────────────────────────────────────────────
+async function envoyer() {
+  const canal   = document.getElementById('canal').value;
+  const objet   = document.getElementById('msg-objet').value.trim();
+  const contenu = document.getElementById('msg-contenu').value.trim();
+
+  if (!contenu) { toast('Rédigez un message.', 'error'); return; }
+
+  // Déterminer les boutiques cibles
+  let cibles = [];
+  if (cibleMode === 'toutes') {
+    cibles = allBoutiques;
+  } else {
+    const ids = [...document.querySelectorAll('#boutique-checkboxes input:checked')].map(c => c.value);
+    if (!ids.length) { toast('Sélectionnez au moins une boutique.', 'error'); return; }
+    cibles = allBoutiques.filter(b => ids.includes(b.id));
+  }
+
+  if (!cibles.length) { toast('Aucune boutique active disponible.', 'error'); return; }
+
+  if (!confirm(`Envoyer ce message à ${cibles.length} boutique${cibles.length > 1 ? 's' : ''} ?`)) return;
+
+  document.getElementById('btn-envoyer').disabled = true;
+  document.getElementById('spin-env').style.display = 'block';
+  document.getElementById('btn-env-txt').style.opacity = '0';
+
+  try {
+    if (canal === 'notif') {
+      // Envoi notifications Firestore en batch
+      const batches = [];
+      let batch = db.batch();
+      let count = 0;
+
+      cibles.forEach(b => {
+        // Compiler le message avec les variables de la boutique
+        const fin = b.abonnement?.fin?.toMillis?.() || 0;
+        const jrs = Math.ceil((fin - Date.now()) / 86400000);
+        const dateFin = fin ? new Date(fin).toLocaleDateString('fr-FR') : '—';
+        let msg = (objet ? objet + '\n\n' : '') + contenu;
+        msg = msg
+          .replace(/\{\{nomBoutique\}\}/g, b.nom || b.id)
+          .replace(/\{\{proprietaire\}\}/g, b.proprietaire || '—')
+          .replace(/\{\{dateFin\}\}/g, dateFin)
+          .replace(/\{\{jrsRestants\}\}/g, jrs > 0 ? jrs+'j' : 'Expiré');
+
+        const ref = db.collection('notifications').doc();
+        batch.set(ref, {
+          boutiqueId: b.id,
+          objet:      objet || 'Message de l\'administrateur',
+          message:    msg,
+          type:       'admin_collectif',
+          lu:         false,
+          date:       firebase.firestore.FieldValue.serverTimestamp()
+        });
+        count++;
+
+        // Firestore batch max 500 ops
+        if (count % 499 === 0) {
+          batches.push(batch.commit());
+          batch = db.batch();
+        }
+      });
+      batches.push(batch.commit());
+      await Promise.all(batches);
+
+      // Enregistrer dans l'historique
+      await db.collection('messages_admin').add({
+        canal: 'notification',
+        objet: objet || '(sans objet)',
+        contenu,
+        nbDestinataires: cibles.length,
+        cibleMode,
+        date: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      toast(`✅ Notification envoyée à ${cibles.length} boutique${cibles.length > 1 ? 's' : ''} !`, 'success');
+
+    } else if (canal === 'whatsapp') {
+      // WhatsApp : ouvrir pour la première boutique (limitation navigateur)
+      const premier = cibles[0];
+      if (premier?.telephone) {
+        const fin = premier.abonnement?.fin?.toMillis?.() || 0;
+        const jrs = Math.ceil((fin - Date.now()) / 86400000);
+        const dateFin = fin ? new Date(fin).toLocaleDateString('fr-FR') : '—';
+        let msg = (objet ? objet + '\n\n' : '') + contenu;
+        msg = msg
+          .replace(/\{\{nomBoutique\}\}/g, premier.nom || premier.id)
+          .replace(/\{\{proprietaire\}\}/g, premier.proprietaire || '—')
+          .replace(/\{\{dateFin\}\}/g, dateFin)
+          .replace(/\{\{jrsRestants\}\}/g, jrs > 0 ? jrs+'j' : 'Expiré');
+        const tel = premier.telephone.replace(/[^0-9+]/g, '');
+        window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+        toast(`WhatsApp ouvert pour ${premier.nom}. Répétez pour les ${cibles.length - 1} autres boutiques.`, 'info');
+      }
+    }
+
+    loadHistorique();
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  }
+
+  document.getElementById('btn-envoyer').disabled = false;
+  document.getElementById('spin-env').style.display = 'none';
+  document.getElementById('btn-env-txt').style.opacity = '1';
+}
+
+// ── Historique ────────────────────────────────────────────────
+async function loadHistorique() {
+  try {
+    const snap = await db.collection('messages_admin').orderBy('date','desc').limit(20).get();
+    const el = document.getElementById('historique-list');
+    if (snap.empty) { el.innerHTML='<div class="empty-state">Aucun message envoyé.</div>'; return; }
+    el.innerHTML = snap.docs.map(d => {
+      const m = d.data();
+      const ico = m.canal==='whatsapp'?'wa':m.canal==='email'?'mail':'notif';
+      const icoTxt = m.canal==='whatsapp'?'💬':m.canal==='email'?'✉️':'🔔';
+      return `
+      <div class="hist-item">
+        <div class="hist-ico ${ico}">${icoTxt}</div>
+        <div class="hist-body">
+          <div class="hist-titre">${m.objet||'(sans objet)'}</div>
+          <div class="hist-dest">→ ${m.nbDestinataires||'?'} boutique${(m.nbDestinataires||0)>1?'s':''} · ${m.canal||'notification'}</div>
+        </div>
+        <div class="hist-time">${fmtDatetime(m.date)}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('historique-list').innerHTML = '<div class="empty-state">Erreur chargement historique.</div>';
+  }
+}
+
+// ── Réinitialiser formulaire ──────────────────────────────────
+function resetForm() {
+  document.getElementById('msg-objet').value = '';
+  document.getElementById('msg-contenu').value = '';
+  document.getElementById('preview-box').textContent = 'Votre message apparaîtra ici...';
+}
+
+// ── Démarrage ─────────────────────────────────────────────────
+loadBoutiques();
+loadHistorique();
+</script>
+</body>
+</html>

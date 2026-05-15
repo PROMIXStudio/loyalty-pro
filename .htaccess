@@ -1,0 +1,12 @@
+# Loyalty Pro - Hostinger
+Options -Indexes
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+<FilesMatch "\.(css|js|png|jpg|svg|ico|woff2)$">
+  Header set Cache-Control "max-age=2592000, public"
+</FilesMatch>
+<FilesMatch "\.(env|json|md)$">
+  Order Allow,Deny
+  Deny from all
+</FilesMatch>

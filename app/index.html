@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loyalty Pro — Connexion Boutique</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--indigo:#4338ca;--violet:#6d28d9;--gold:#f59e0b;--success:#10b981;--danger:#ef4444;--muted:#64748b;--border:#e2e8f0;--ink:#0d0d1a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#0d0d1a 0%,#1a1a2e 60%,#16213e 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;position:relative;overflow:hidden}
+body::before{content:'';position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,.12),transparent 70%);top:-150px;right:-150px;border-radius:50%}
+body::after{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(109,40,217,.08),transparent 70%);bottom:-100px;left:-100px;border-radius:50%}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.card{position:relative;z-index:2;background:rgba(255,255,255,.97);border-radius:24px;padding:2.5rem;width:100%;max-width:440px;box-shadow:0 24px 80px rgba(0,0,0,.35);animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2rem}
+.logo-icon{width:48px;height:48px;background:linear-gradient(135deg,var(--indigo),var(--violet));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 8px 20px rgba(67,56,202,.3)}
+.logo-txt{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--ink)}
+.logo-txt span{color:var(--indigo)}
+.login-tabs{display:flex;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:1.75rem;gap:4px}
+.login-tab{flex:1;padding:.6rem;border-radius:9px;border:none;background:transparent;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all .2s}
+.login-tab.active{background:#fff;color:var(--indigo);box-shadow:0 2px 8px rgba(0,0,0,.08);font-weight:600}
+.form-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--ink);margin-bottom:4px}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.5}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.iw{position:relative}
+.iw .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--muted);pointer-events:none}
+.iw input{width:100%;padding:.7rem 1rem .7rem 2.6rem;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:#fff;transition:border .2s,box-shadow .2s;color:var(--ink)}
+.iw input:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(67,56,202,.08)}
+.iw input::placeholder{color:#94a3b8}
+.iw .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:17px;color:var(--muted);background:none;border:none;padding:4px}
+.id-hint{font-size:11px;color:var(--muted);margin-top:4px}
+.id-check{font-size:11px;font-weight:600;margin-top:4px;padding:4px 10px;border-radius:6px;display:none}
+.id-check.ok{background:#d1fae5;color:#065f46;display:flex;align-items:center;gap:4px}
+.id-check.fail{background:#fee2e2;color:#991b1b;display:flex;align-items:center;gap:4px}
+.gerant-info{background:#fffbeb;border:1px solid #fde68a;border-radius:9px;padding:10px 14px;font-size:12.5px;color:#92400e;margin-bottom:1rem;display:none}
+.btn-main{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:1.25rem;box-shadow:0 4px 16px rgba(67,56,202,.3)}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(67,56,202,.4)}
+.btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.msg{padding:10px 14px;border-radius:9px;font-size:13px;margin-bottom:1rem;display:none;align-items:center;gap:8px;line-height:1.4}
+.msg.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:flex}
+.msg.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;display:flex}
+.msg.info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;display:flex}
+.bottom-link{text-align:center;font-size:12.5px;color:var(--muted);margin-top:1.25rem}
+.bottom-link a{color:var(--indigo);font-weight:500;text-decoration:none}
+.card-footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center;font-size:11.5px;color:var(--muted)}
+@media(max-width:480px){.card{padding:2rem 1.5rem;border-radius:20px}body{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🏆</div>
+    <div class="logo-txt">Loyalty<span>Pro</span></div>
+  </div>
+
+  <div id="panel-login">
+    <div class="login-tabs">
+      <button class="login-tab active" type="button" onclick="setRole('proprietaire',this)">👤 Propriétaire</button>
+      <button class="login-tab" type="button" onclick="setRole('gerant',this)">👨‍💼 Gérant</button>
+    </div>
+    <div class="form-title" id="login-title">Connexion boutique</div>
+    <p class="form-sub" id="login-sub">Entrez l'identifiant de votre boutique et vos informations.</p>
+    <div class="gerant-info" id="gerant-info">👨‍💼 Connectez-vous avec votre nom et mot de passe définis par le propriétaire.</div>
+    <div class="msg" id="msg-login"></div>
+    <div class="field">
+      <label>ID de la boutique</label>
+      <div class="iw">
+        <span class="ico">🏪</span>
+        <input type="text" id="boutique-id" placeholder="Ex: chez-marie-yde" oninput="checkId()" autocomplete="off">
+      </div>
+      <div class="id-hint">💡 L'ID vous a été fourni lors de la création de votre boutique</div>
+      <div class="id-check" id="id-check"></div>
+    </div>
+    <div class="field" id="field-email">
+      <label>Adresse Gmail</label>
+      <div class="iw">
+        <span class="ico">✉️</span>
+        <input type="email" id="login-email" placeholder="proprio@gmail.com" autocomplete="email">
+      </div>
+    </div>
+    <div class="field" id="field-gerant-nom" style="display:none">
+      <label>Votre nom</label>
+      <div class="iw">
+        <span class="ico">👤</span>
+        <input type="text" id="login-gerant-nom" placeholder="Prénom Nom">
+      </div>
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <div class="iw">
+        <span class="ico">🔑</span>
+        <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
+        <button class="eye" type="button" onclick="togglePwd()">👁️</button>
+      </div>
+    </div>
+    <button class="btn-main" id="btn-login" type="button" onclick="handleLogin()">
+      <span id="btn-login-txt">Se connecter</span>
+      <div class="spinner" id="spin-login"></div>
+    </button>
+    <div class="bottom-link">
+      <a href="#" id="link-reset" onclick="showReset(event)">Mot de passe oublié ?</a>
+    </div>
+  </div>
+
+  <div id="panel-reset" style="display:none">
+    <div class="form-title">Réinitialisation</div>
+    <p class="form-sub">Entrez l'ID boutique et votre Gmail pour recevoir un lien.</p>
+    <div class="msg" id="msg-reset"></div>
+    <div class="field">
+      <label>ID de la boutique</label>
+      <div class="iw">
+        <span class="ico">🏪</span>
+        <input type="text" id="reset-bid" placeholder="Ex: chez-marie-yde">
+      </div>
+    </div>
+    <div class="field">
+      <label>Gmail du propriétaire</label>
+      <div class="iw">
+        <span class="ico">✉️</span>
+        <input type="email" id="reset-email" placeholder="proprio@gmail.com">
+      </div>
+    </div>
+    <button class="btn-main" id="btn-reset" type="button" onclick="handleReset()">
+      <span id="btn-reset-txt">Envoyer le lien</span>
+      <div class="spinner" id="spin-reset"></div>
+    </button>
+    <div class="bottom-link"><a href="#" onclick="showLogin(event)">← Retour</a></div>
+  </div>
+
+  <div class="card-footer">Powered by <strong>Loyalty Pro</strong></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script>
+
+// Vérifier si déjà connecté
+if (sessionStorage.getItem('lp_boutique_id')) {
+  window.location.replace('dashboard.html');
+}
+
+let currentRole = 'proprietaire';
+let checkTimer  = null;
+
+function setRole(role, btn) {
+  currentRole = role;
+  document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const isG = role === 'gerant';
+  document.getElementById('field-email').style.display      = isG ? 'none' : '';
+  document.getElementById('field-gerant-nom').style.display = isG ? '' : 'none';
+  document.getElementById('gerant-info').style.display      = isG ? 'flex' : 'none';
+  document.getElementById('link-reset').style.display       = isG ? 'none' : '';
+  document.getElementById('login-title').textContent        = isG ? 'Connexion gérant' : 'Connexion boutique';
+  document.getElementById('login-sub').textContent          = isG
+    ? 'Connectez-vous avec votre nom et mot de passe.'
+    : 'Entrez l\'ID de votre boutique et vos informations.';
+  hideMsg('msg-login');
+}
+
+function checkId() {
+  const id = document.getElementById('boutique-id').value.trim().toLowerCase();
+  const el = document.getElementById('id-check');
+  clearTimeout(checkTimer);
+  if (id.length < 2) { el.className = 'id-check'; return; }
+  checkTimer = setTimeout(async () => {
+    try {
+      const snap = await db.collection('boutiques').doc(id).get();
+      if (snap.exists) {
+        el.className = 'id-check ok';
+        el.innerHTML = '✅ ' + (snap.data().nom || id);
+        // Afficher l'email enregistré pour aider l'utilisateur
+        const emailSaved = snap.data().email || '';
+        if (emailSaved) {
+          el.innerHTML += ` <span style="opacity:.6;font-size:10px">(${emailSaved})</span>`;
+        }
+      } else {
+        el.className = 'id-check fail';
+        el.innerHTML = '❌ Boutique introuvable';
+      }
+    } catch(e) { el.className = 'id-check'; }
+  }, 600);
+}
+
+async function handleLogin() {
+  const boutiqueId = document.getElementById('boutique-id').value.trim().toLowerCase();
+  const pwd        = document.getElementById('login-pwd').value;
+  hideMsg('msg-login');
+
+  if (!boutiqueId) { showMsg('msg-login', 'Entrez l\'ID de votre boutique.', 'error'); return; }
+  if (!pwd)        { showMsg('msg-login', 'Entrez votre mot de passe.', 'error'); return; }
+
+  setBtn(true);
+
+  try {
+    // 1. Charger la boutique
+    const bSnap = await db.collection('boutiques').doc(boutiqueId).get();
+    if (!bSnap.exists) {
+      showMsg('msg-login', '❌ Boutique introuvable. Vérifiez l\'ID.', 'error');
+      setBtn(false); return;
+    }
+    const boutique = bSnap.data();
+    console.log('✅ Boutique trouvée:', boutiqueId);
+    console.log('📧 Email Firestore:', boutique.email);
+    console.log('📊 Statut:', boutique.statut);
+    console.log('📅 Fin abonnement:', boutique.abonnement?.fin?.toDate?.());
+
+    // 2. Vérifier abonnement
+    const fin  = boutique.abonnement?.fin?.toMillis?.() || 0;
+    const diff = fin - Date.now();
+    if (diff <= 0) {
+      showMsg('msg-login', '⚠️ Abonnement expiré. Contactez l\'administrateur.', 'error');
+      setBtn(false); return;
+    }
+
+    if (currentRole === 'proprietaire') {
+      const email = document.getElementById('login-email').value.trim();
+      if (!email) { showMsg('msg-login', 'Entrez votre Gmail.', 'error'); setBtn(false); return; }
+
+      console.log('🔑 Tentative connexion avec email:', email);
+
+      // Connexion Firebase Auth — sans vérifier l'email Firestore
+      // (au cas où le champ email n'est pas encore rempli)
+      try {
+        await auth.signInWithEmailAndPassword(email, pwd);
+        console.log('✅ Connexion Firebase réussie');
+      } catch(authErr) {
+        console.error('❌ Erreur Firebase Auth:', authErr.code, authErr.message);
+        throw authErr;
+      }
+
+      sessionStorage.setItem('lp_boutique_id',  boutiqueId);
+      sessionStorage.setItem('lp_boutique_nom', boutique.nom || boutiqueId);
+      sessionStorage.setItem('lp_role',         'proprietaire');
+      sessionStorage.setItem('lp_email',        email);
+
+      // Mettre à jour l'email dans Firestore si manquant
+      if (!boutique.email) {
+        await db.collection('boutiques').doc(boutiqueId).update({ email });
+        console.log('📧 Email mis à jour dans Firestore');
+      }
+
+    } else {
+      const nom = document.getElementById('login-gerant-nom').value.trim();
+      if (!nom) { showMsg('msg-login', 'Entrez votre nom.', 'error'); setBtn(false); return; }
+      const pwdHash = btoa(unescape(encodeURIComponent(pwd)));
+      const gSnap = await db.collection('boutiques').doc(boutiqueId)
+        .collection('gerants')
+        .where('nom', '==', nom)
+        .where('motDePasse', '==', pwdHash)
+        .limit(1).get();
+      if (gSnap.empty) {
+        showMsg('msg-login', 'Nom ou mot de passe incorrect.', 'error');
+        setBtn(false); return;
+      }
+      await auth.signInAnonymously();
+      sessionStorage.setItem('lp_boutique_id',  boutiqueId);
+      sessionStorage.setItem('lp_boutique_nom', boutique.nom || boutiqueId);
+      sessionStorage.setItem('lp_role',         'gerant');
+      sessionStorage.setItem('lp_gerant_nom',   nom);
+    }
+
+    showMsg('msg-login', '✅ Connexion réussie ! Chargement...', 'success');
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+
+  } catch(e) {
+    console.error('❌ Erreur complète:', e);
+    let msg = 'Erreur : ' + (e.code || e.message || 'inconnue');
+    if (e.code === 'auth/user-not-found')       msg = 'Aucun compte Firebase avec cet email. Créez-le dans Firebase → Authentication.';
+    if (e.code === 'auth/wrong-password')        msg = 'Mot de passe incorrect.';
+    if (e.code === 'auth/invalid-credential')    msg = 'Email ou mot de passe incorrect.';
+    if (e.code === 'auth/too-many-requests')     msg = 'Trop de tentatives. Réessayez dans quelques minutes.';
+    if (e.code === 'auth/unauthorized-domain')   msg = 'Ouvrez avec Live Server sur http://127.0.0.1:5500';
+    if (e.code === 'auth/operation-not-allowed') msg = 'Activez Email/Password dans Firebase → Authentication → Sign-in method.';
+    if (e.code === 'auth/invalid-email')         msg = 'Format d\'email invalide.';
+    showMsg('msg-login', msg, 'error');
+  }
+  setBtn(false);
+}
+
+async function handleReset() {
+  const bid   = document.getElementById('reset-bid').value.trim().toLowerCase();
+  const email = document.getElementById('reset-email').value.trim();
+  hideMsg('msg-reset');
+  if (!bid || !email) { showMsg('msg-reset', 'Remplissez tous les champs.', 'error'); return; }
+  document.getElementById('btn-reset').disabled = true;
+  document.getElementById('spin-reset').style.display = 'block';
+  document.getElementById('btn-reset-txt').style.opacity = '0';
+  try {
+    await auth.sendPasswordResetEmail(email);
+    showMsg('msg-reset', '✅ Lien envoyé ! Vérifiez votre Gmail.', 'success');
+  } catch(e) {
+    showMsg('msg-reset', 'Erreur : ' + (e.message || 'Réessayez.'), 'error');
+  }
+  document.getElementById('btn-reset').disabled = false;
+  document.getElementById('spin-reset').style.display = 'none';
+  document.getElementById('btn-reset-txt').style.opacity = '1';
+}
+
+function showMsg(id, txt, type) {
+  const el = document.getElementById(id);
+  el.className = `msg ${type}`;
+  el.innerHTML = `<span>${type==='error'?'⚠️':type==='success'?'✅':'ℹ️'}</span> ${txt}`;
+  el.style.display = 'flex';
+}
+function hideMsg(id) { document.getElementById(id).style.display = 'none'; }
+function togglePwd() { const i = document.getElementById('login-pwd'); i.type = i.type==='password'?'text':'password'; }
+function setBtn(on) {
+  document.getElementById('btn-login').disabled = on;
+  document.getElementById('spin-login').style.display = on ? 'block' : 'none';
+  document.getElementById('btn-login-txt').style.opacity = on ? '0' : '1';
+}
+function showReset(e) { e.preventDefault(); document.getElementById('panel-login').style.display='none'; document.getElementById('panel-reset').style.display='block'; }
+function showLogin(e) { e.preventDefault(); document.getElementById('panel-reset').style.display='none'; document.getElementById('panel-login').style.display='block'; }
+document.addEventListener('keydown', e => { if (e.key==='Enter') handleLogin(); });
+</script>
+</body>
+</html>

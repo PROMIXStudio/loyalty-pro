@@ -1,0 +1,11 @@
+{
+  "name": "loyalty-pro-functions",
+  "description": "Firebase Cloud Functions - Loyalty Pro",
+  "engines": { "node": "18" },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^11.0.0",
+    "firebase-functions": "^4.0.0"
+  },
+  "private": true
+}

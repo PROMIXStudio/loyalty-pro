@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "boutiques",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "statut",         "order": "ASCENDING"  },
+        { "fieldPath": "abonnement.fin", "order": "ASCENDING"  }
+      ]
+    },
+    {
+      "collectionGroup": "paiements",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "boutiqueId", "order": "ASCENDING"  },
+        { "fieldPath": "date",       "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

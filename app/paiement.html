@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Renouvellement — Loyalty Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--indigo:#4338ca;--violet:#6d28d9;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--muted:#64748b;--border:#e2e8f0;--bg:#f1f5f9;--surface:#fff;--ink:#0d0d1a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);padding-bottom:40px;min-height:100vh}
+.app-header{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:99;box-shadow:0 2px 12px rgba(67,56,202,.3)}
+.btn-back{width:36px;height:36px;background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;flex-shrink:0}
+.header-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem}
+.header-sub{font-size:11px;opacity:.7;margin-top:1px}
+.content{padding:1.25rem;max-width:520px;margin:0 auto}
+
+/* Statut */
+.sub-card{border-radius:18px;padding:1.5rem;margin-bottom:1.5rem;color:#fff;position:relative;overflow:hidden}
+.sub-card.actif{background:linear-gradient(135deg,#059669,#10b981)}
+.sub-card.alerte{background:linear-gradient(135deg,#d97706,#f59e0b)}
+.sub-card.expire{background:linear-gradient(135deg,#dc2626,#ef4444)}
+.sub-card::before{content:'';position:absolute;width:120px;height:120px;background:rgba(255,255,255,.08);border-radius:50%;top:-30px;right:-30px}
+.sc-nom{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;margin-bottom:.25rem;position:relative;z-index:2}
+.sc-row{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
+.sc-days{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1}
+.sc-lbl{font-size:10px;opacity:.6}
+.sc-date{font-size:11px;opacity:.7;text-align:right}
+
+/* Plans */
+.section-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:1rem}
+.plans{display:flex;flex-direction:column;gap:.875rem;margin-bottom:1.5rem}
+.plan{background:var(--surface);border-radius:16px;border:2px solid var(--border);padding:1.25rem;cursor:pointer;transition:all .2s;position:relative}
+.plan:hover{border-color:var(--indigo)}
+.plan.selected{border-color:var(--indigo);background:#f0f3ff}
+.plan-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;padding:3px 14px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.plan-top{display:flex;align-items:center;justify-content:space-between}
+.plan-name{font-family:'Syne',sans-serif;font-weight:700}
+.plan-price{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--indigo)}
+.plan-price small{font-size:12px;font-weight:400;color:var(--muted)}
+.plan-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;margin-left:10px;transition:all .2s}
+.plan.selected .plan-check{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.plan-feat{font-size:12.5px;color:var(--muted);margin-top:.5rem}
+
+/* Carte paiement */
+.pay-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);overflow:hidden;margin-bottom:1.5rem}
+.pay-head{padding:1rem 1.25rem;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem}
+.pay-body{padding:1.25rem}
+
+/* Résumé */
+.summary{background:var(--bg);border-radius:12px;padding:1rem;margin-bottom:1.25rem}
+.sum-row{display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0}
+.sum-row.total{border-top:1px solid var(--border);margin-top:6px;padding-top:10px;font-weight:700}
+.sum-row.total span:last-child{color:var(--indigo);font-family:'Syne',sans-serif;font-size:1.1rem}
+
+/* Bouton Monetbil */
+.monetbil-btn-wrap{margin-bottom:.875rem}
+.monetbil-btn-wrap form{display:block;width:100%}
+.btn-monetbil{width:100%;padding:1rem;background:linear-gradient(135deg,#0066cc,#0052a3);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 6px 20px rgba(0,102,204,.3);transition:all .2s}
+.btn-monetbil:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,102,204,.4)}
+.monetbil-logo{background:#fff;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:800;color:#0066cc}
+
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#1d4ed8;line-height:1.6;margin-bottom:1rem;display:flex;align-items:flex-start;gap:8px}
+.sec{display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;font-size:12px;color:#166534;margin-top:1rem}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:1rem;right:1rem;max-width:400px;margin:0 auto;color:#fff;padding:12px 16px;border-radius:12px;font-size:13.5px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:toastIn .3s ease;text-align:center}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <a class="btn-back" href="dashboard.html">←</a>
+  <div>
+    <div class="header-title">💳 Renouveler l'abonnement</div>
+    <div class="header-sub" id="app-header-title">Ma Boutique</div>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Statut abonnement -->
+  <div class="sub-card actif" id="sub-card">
+    <div class="sc-nom" id="sc-nom">Chargement...</div>
+    <div class="sc-row">
+      <div>
+        <div class="sc-days" id="sc-days">—</div>
+        <div class="sc-lbl">jours restants</div>
+      </div>
+      <div class="sc-date">Expire le<br><strong id="sc-fin">—</strong></div>
+    </div>
+  </div>
+
+  <!-- Plans -->
+  <div class="section-title">Choisir votre plan</div>
+  <div class="plans">
+    <div class="plan" onclick="selectPlan(1,5000,2592000000,this)">
+      <div class="plan-top">
+        <div class="plan-name">🗓️ 1 mois</div>
+        <div style="display:flex;align-items:center">
+          <div class="plan-price">5 000 <small>FCFA</small></div>
+          <div class="plan-check" id="pc-0">○</div>
+        </div>
+      </div>
+      <div class="plan-feat">✅ 30 jours · Clients et points illimités</div>
+    </div>
+
+    <div class="plan selected" onclick="selectPlan(3,12000,7776000000,this)">
+      <div class="plan-badge">⭐ Le plus populaire</div>
+      <div class="plan-top">
+        <div class="plan-name">🗓️ 3 mois</div>
+        <div style="display:flex;align-items:center">
+          <div class="plan-price">12 000 <small>FCFA</small></div>
+          <div class="plan-check" id="pc-1">✓</div>
+        </div>
+      </div>
+      <div class="plan-feat">✅ 90 jours · Économisez 3 000 FCFA</div>
+    </div>
+
+    <div class="plan" onclick="selectPlan(12,40000,31536000000,this)">
+      <div class="plan-top">
+        <div class="plan-name">🗓️ 1 an</div>
+        <div style="display:flex;align-items:center">
+          <div class="plan-price">40 000 <small>FCFA</small></div>
+          <div class="plan-check" id="pc-2">○</div>
+        </div>
+      </div>
+      <div class="plan-feat">✅ 365 jours · 🎁 1 mois offert !</div>
+    </div>
+  </div>
+
+  <!-- Paiement Monetbil -->
+  <div class="pay-card">
+    <div class="pay-head">
+      <span style="font-size:20px">📱</span>
+      Paiement Mobile Money via Monetbil
+    </div>
+    <div class="pay-body">
+
+      <div class="info-box">
+        ℹ️ Vous serez redirigé vers la page de paiement Monetbil. Payez avec MTN MoMo ou Orange Money. L'activation est automatique après confirmation.
+      </div>
+
+      <!-- Résumé -->
+      <div class="summary">
+        <div class="sum-row"><span>Plan</span><span id="sum-plan">3 mois</span></div>
+        <div class="sum-row"><span>Boutique</span><span id="sum-boutique">—</span></div>
+        <div class="sum-row total"><span>Total à payer</span><span id="sum-total">12 000 FCFA</span></div>
+      </div>
+
+      <!-- Bouton Monetbil Widget -->
+      <div class="monetbil-btn-wrap">
+        <button class="btn-monetbil" type="button" onclick="lancerPaiement()">
+          <span class="monetbil-logo">M</span>
+          Payer maintenant — <span id="btn-montant">12 000 FCFA</span>
+        </button>
+      </div>
+
+      <div class="sec">
+        🔒 Paiement 100% sécurisé via Monetbil · MTN MoMo & Orange Money · Activation automatique
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+
+<!-- Monetbil Widget -->
+<script type="text/javascript" src="https://fr.monetbil.com/widget/v2/monetbil.min.js"></script>
+
+<script>
+// ── Config Monetbil ───────────────────────────────────────────
+const MONETBIL_SERVICE_KEY = 'A3o1h9uoTzRWGkPxnSMHuJ9TmpbSX3o5';
+
+const boutiqueId  = sessionStorage.getItem('lp_boutique_id');
+const boutiqueNom = sessionStorage.getItem('lp_boutique_nom') || boutiqueId;
+const roleActuel  = sessionStorage.getItem('lp_role');
+let selectedPlan  = { mois:3, prix:12000, dureeMs:7776000000 };
+
+// Bloquer l'accès aux gérants
+if (roleActuel === 'gerant') {
+  document.body.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;
+                min-height:100vh;background:#f1f5f9;font-family:'DM Sans',sans-serif;padding:1rem">
+      <div style="background:#fff;border-radius:20px;padding:2.5rem;text-align:center;
+                  max-width:400px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.1)">
+        <div style="font-size:3rem;margin-bottom:1rem">🔒</div>
+        <h2 style="color:#1e1b4b;font-size:1.3rem;margin-bottom:.5rem;font-weight:700">
+          Accès restreint
+        </h2>
+        <p style="color:#64748b;margin-bottom:1.5rem;line-height:1.6;font-size:14px">
+          Seul le propriétaire peut gérer les abonnements.<br>
+          Contactez le propriétaire de la boutique.
+        </p>
+        <a href="dashboard.html"
+           style="display:block;background:linear-gradient(135deg,#4338ca,#6d28d9);
+                  color:#fff;padding:.85rem;border-radius:12px;text-decoration:none;
+                  font-weight:600;font-size:15px">
+          ← Retour au tableau de bord
+        </a>
+      </div>
+    </div>`;
+}
+
+// ── Chargement boutique ───────────────────────────────────────
+async function loadAbonnement() {
+  if (!boutiqueId) return;
+  try {
+    const snap = await db.collection('boutiques').doc(boutiqueId).get();
+    if (!snap.exists) return;
+    const b   = snap.data();
+    const fin  = b.abonnement?.fin?.toMillis?.() || 0;
+    const diff = Math.max(0, fin - Date.now());
+    const jrs  = Math.ceil(diff / 86400000);
+
+    document.getElementById('sc-nom').textContent  = b.nom || boutiqueId;
+    document.getElementById('sc-days').textContent = jrs;
+    document.getElementById('sc-fin').textContent  = fin
+      ? new Date(fin).toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})
+      : '—';
+    document.getElementById('sub-card').className =
+      'sub-card ' + (diff<=0?'expire':jrs<=5?'alerte':'actif');
+    document.getElementById('sum-boutique').textContent = b.nom || boutiqueId;
+    document.getElementById('app-header-title').textContent = b.nom || boutiqueId;
+
+    // Pré-remplir téléphone si disponible
+    if (b.telephone) {
+      document.getElementById('m-phone').value = b.telephone.replace(/[^0-9]/g,'');
+    }
+  } catch(e) { console.error(e); }
+  updateMonetbil();
+}
+
+// ── Sélection plan ────────────────────────────────────────────
+function selectPlan(mois, prix, dureeMs, el) {
+  selectedPlan = { mois, prix, dureeMs };
+  document.querySelectorAll('.plan').forEach((p,i) => {
+    p.classList.remove('selected');
+    document.getElementById('pc-'+i).textContent = '○';
+  });
+  el.classList.add('selected');
+  const idx = [...document.querySelectorAll('.plan')].indexOf(el);
+  document.getElementById('pc-'+idx).textContent = '✓';
+  document.getElementById('sum-plan').textContent    = mois + ' mois';
+  document.getElementById('sum-total').textContent   = prix.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('btn-montant').textContent = prix.toLocaleString('fr-FR') + ' FCFA';
+  updateMonetbil();
+}
+
+// ── Mettre à jour l'affichage ────────────────────────────────
+function updateMonetbil() {
+  // Juste mettre à jour l'affichage — le vrai appel se fait dans lancerPaiement()
+}
+
+// ── Lancer le paiement Monetbil ───────────────────────────────
+async function lancerPaiement() {
+  if (!boutiqueId) { toast('Session expirée. Reconnectez-vous.', 'error'); return; }
+
+  const payRef = 'LP-' + boutiqueId + '-' + selectedPlan.mois + 'm-' + Date.now();
+
+  // Enregistrer la tentative
+  try {
+    await db.collection('paiements').add({
+      boutiqueId, boutiqueNom,
+      montant:      selectedPlan.prix,
+      mois:         selectedPlan.mois,
+      dureeMs:      selectedPlan.dureeMs,
+      statut:       'INITIATED',
+      reference:    payRef,
+      modePaiement: 'MONETBIL',
+      date:         firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch(e) { console.warn('Firestore:', e); }
+
+  // Appel direct Monetbil via leur API de widget
+  const params = {
+    service:     MONETBIL_SERVICE_KEY,
+    amount:      selectedPlan.prix,
+    currency:    'XAF',
+    locale:      'fr',
+    country:     'CM',
+    item_ref:    boutiqueId + '-' + selectedPlan.mois + 'mois',
+    payment_ref: payRef,
+    return_url:  window.location.href + '?paid=1&ref=' + payRef
+  };
+
+  // Construire l'URL Monetbil
+  const query = Object.entries(params)
+    .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+    .join('&');
+
+  const monetbilUrl = 'https://fr.monetbil.com/widget/v2.1/' + MONETBIL_SERVICE_KEY + '?' + query;
+
+  console.log('Ouverture Monetbil:', monetbilUrl);
+
+  // Ouvrir dans une popup ou rediriger
+  const popup = window.open(monetbilUrl, 'monetbil_pay',
+    'width=500,height=600,left=' + (screen.width/2-250) + ',top=' + (screen.height/2-300));
+
+  if (!popup || popup.closed) {
+    // Popup bloquée → redirection directe
+    window.location.href = monetbilUrl;
+  } else {
+    // Surveiller la fermeture de la popup
+    const timer = setInterval(async () => {
+      if (popup.closed) {
+        clearInterval(timer);
+        // Vérifier si le paiement a été complété
+        await verifierPaiementApresPopup(payRef);
+      }
+    }, 1000);
+  }
+}
+
+// ── Vérifier paiement après fermeture popup ───────────────────
+async function verifierPaiementApresPopup(payRef) {
+  try {
+    const snap = await db.collection('paiements')
+      .where('reference', '==', payRef).limit(1).get();
+    if (!snap.empty && snap.docs[0].data().statut === 'SUCCESSFUL') {
+      window.location.href = 'dashboard.html?renew=success';
+    } else {
+      toast('Vérifiez votre paiement. Si vous avez payé, attendez 1-2 minutes.', 'info');
+    }
+  } catch(e) {}
+}
+
+// ── Écouter le résultat Monetbil ──────────────────────────────
+// Monetbil appelle cette fonction après paiement
+window.monetbil_callback = async function(response) {
+  console.log('Monetbil callback:', response);
+
+  if (response && (response.status === 'success' || response.payment_status === 1)) {
+    // Paiement réussi → activer l'abonnement
+    try {
+      const now = Date.now();
+      const fin = new Date(now + selectedPlan.dureeMs);
+
+      await db.collection('boutiques').doc(boutiqueId).update({
+        statut:               'actif',
+        'abonnement.actif':   true,
+        'abonnement.debut':   firebase.firestore.Timestamp.fromDate(new Date(now)),
+        'abonnement.fin':     firebase.firestore.Timestamp.fromDate(fin),
+        'abonnement.dureeMs': selectedPlan.dureeMs
+      });
+
+      // Enregistrer le paiement
+      await db.collection('paiements').add({
+        boutiqueId,
+        boutiqueNom,
+        montant:      selectedPlan.prix,
+        mois:         selectedPlan.mois,
+        dureeMs:      selectedPlan.dureeMs,
+        operateur:    response.operator || response.payment_method || 'Mobile Money',
+        reference:    response.transaction_id || response.payment_ref || '',
+        statut:       'SUCCESSFUL',
+        modePaiement: 'MONETBIL',
+        date:         firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Rediriger vers succès
+      window.location.href = 'dashboard.html?renew=success';
+
+    } catch(e) {
+      console.error('Erreur activation:', e);
+      toast('Paiement reçu mais erreur activation. Contactez le support.', 'error');
+    }
+  } else if (response && response.status === 'cancelled') {
+    toast('Paiement annulé.', 'error');
+  } else {
+    toast('Paiement non confirmé. Réessayez.', 'error');
+  }
+};
+
+
+
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// Vérifier si retour après paiement
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('paid') === '1') {
+  const ref = urlParams.get('ref');
+  toast('⏳ Vérification du paiement...', 'info');
+  setTimeout(async () => {
+    if (ref) {
+      // Vérifier dans Firestore
+      const snap = await db.collection('paiements').where('reference','==',ref).limit(1).get();
+      if (!snap.empty && snap.docs[0].data().statut === 'SUCCESSFUL') {
+        window.location.href = 'dashboard.html?renew=success';
+      } else {
+        // Activer via webhook Monetbil — attendre la notification
+        toast('Paiement en cours de vérification. Patientez...', 'info');
+      }
+    }
+  }, 2000);
+}
+if (urlParams.get('renew') === 'success') {
+  toast('🎉 Abonnement renouvelé avec succès !', 'success');
+}
+
+loadAbonnement();
+</script>
+</body>
+</html>

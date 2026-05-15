@@ -1,0 +1,31 @@
+/* ================================================================
+   LOYALTY PRO - Styles interface administrateur
+   ================================================================ */
+.admin-layout { display:flex;min-height:100vh; }
+.sidebar { width:240px;background:#1e1b4b;color:#c7d2fe;padding:1.5rem 1rem;
+           position:fixed;top:0;left:0;height:100vh;overflow-y:auto;
+           display:flex;flex-direction:column;z-index:100; }
+.sidebar-logo { font-size:1.25rem;font-weight:700;color:#fff;
+                padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,.1);
+                margin-bottom:1.5rem;letter-spacing:-.5px; }
+.sidebar-logo span { color:#818cf8; }
+.sidebar-menu a { display:flex;align-items:center;gap:10px;padding:10px 12px;
+                  border-radius:8px;color:#c7d2fe;text-decoration:none;
+                  font-size:14px;margin-bottom:4px;transition:all .2s; }
+.sidebar-menu a:hover, .sidebar-menu a.active { background:rgba(255,255,255,.1);color:#fff; }
+.sidebar-footer { margin-top:auto;padding-top:1rem;
+                  border-top:1px solid rgba(255,255,255,.1); }
+.admin-main   { margin-left:240px;padding:2rem;flex:1;min-height:100vh; }
+.page-header  { display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem; }
+.page-title   { font-size:1.5rem;font-weight:700;color:#1e1b4b; }
+.stats-grid   { display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+                gap:1rem;margin-bottom:2rem; }
+.test-panel   { background:#fffbeb;border:2px dashed #f59e0b;border-radius:12px;padding:1.5rem; }
+.table-wrap   { overflow-x:auto;border-radius:12px;background:#fff;
+                box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.table-wrap table { border-radius:12px;overflow:hidden; }
+@media(max-width:768px){
+  .sidebar { transform:translateX(-100%);transition:transform .3s; }
+  .sidebar.open { transform:none; }
+  .admin-main { margin-left:0;padding:1rem; }
+}

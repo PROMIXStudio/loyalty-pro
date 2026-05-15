@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Paramètres — Loyalty Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--indigo:#4338ca;--violet:#6d28d9;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--muted:#64748b;--border:#e2e8f0;--bg:#f1f5f9;--surface:#fff;--ink:#0d0d1a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);padding-bottom:85px;min-height:100vh}
+.app-header{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;box-shadow:0 2px 12px rgba(67,56,202,.3)}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-logo{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.header-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem}
+.header-sub{font-size:11px;opacity:.7;margin-top:1px}
+.header-btn{width:36px;height:36px;background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
+#sub-banner{display:none}
+.content{padding:1.25rem;max-width:520px;margin:0 auto}
+
+/* Sections */
+.section{background:var(--surface);border-radius:16px;border:1px solid var(--border);margin-bottom:1.25rem;overflow:hidden}
+.section-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.section-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.section-ico.indigo{background:#e0e7ff}
+.section-ico.green{background:#d1fae5}
+.section-ico.gold{background:#fef3c7}
+.section-ico.red{background:#fee2e2}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem}
+.section-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.section-body{padding:1.25rem}
+
+/* Champs */
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.field input,.field select,.field textarea{width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s;color:var(--ink)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--indigo)}
+.field textarea{resize:vertical;min-height:90px;line-height:1.6}
+.field-hint{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+
+/* Mode points */
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.mode-btn{padding:.75rem .5rem;border-radius:10px;border:2px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif}
+.mode-btn:hover{border-color:var(--indigo)}
+.mode-btn.selected{border-color:var(--indigo);background:#e0e7ff}
+.mode-btn .m-ico{font-size:20px;margin-bottom:4px}
+.mode-btn .m-lbl{font-size:11px;font-weight:600;color:var(--muted)}
+.mode-btn.selected .m-lbl{color:var(--indigo)}
+.mode-config{display:none}
+.mode-config.show{display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+
+/* Gérants */
+.gerant-item{display:flex;align-items:center;justify-content:space-between;padding:.875rem 0;border-bottom:1px solid #f8fafc}
+.gerant-item:last-child{border-bottom:none}
+.gerant-info{display:flex;align-items:center;gap:10px}
+.gerant-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--violet));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.gerant-name{font-weight:600;font-size:13.5px}
+.gerant-role{font-size:11px;color:var(--muted);margin-top:1px}
+.btn-del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;padding:4px;border-radius:6px;transition:background .2s}
+.btn-del:hover{background:#fee2e2}
+.btn-add-gerant{width:100%;padding:.75rem;background:var(--bg);color:var(--indigo);border:1.5px dashed var(--indigo);border-radius:12px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:.75rem;transition:all .2s}
+.btn-add-gerant:hover{background:#e0e7ff}
+
+/* Variables messages */
+.vars{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:.75rem}
+.var-chip{padding:3px 9px;border-radius:6px;background:#e0e7ff;color:var(--indigo);font-size:11.5px;font-weight:500;cursor:pointer;transition:all .2s}
+.var-chip:hover{background:var(--indigo);color:#fff}
+
+/* Bouton sauvegarder */
+.btn-save{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(67,56,202,.3);margin-top:.5rem}
+.btn-save:disabled{opacity:.6;cursor:not-allowed}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-danger-outline{width:100%;padding:.75rem;background:var(--surface);color:var(--danger);border:1.5px solid var(--danger);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-danger-outline:hover{background:#fee2e2}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:1.5rem;width:100%;max-width:520px;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 1.25rem}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:var(--bg);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px}
+.msg{padding:10px 14px;border-radius:9px;font-size:13px;margin-bottom:1rem;display:none;align-items:center;gap:8px}
+.msg.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:flex}
+.msg.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;display:flex}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:1rem;right:1rem;max-width:400px;margin:0 auto;color:#fff;padding:12px 16px;border-radius:12px;font-size:13.5px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:toastIn .3s ease;text-align:center}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;padding:6px 0 8px;z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 14px;border-radius:10px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;transition:all .2s}
+.nav-item.active,.nav-item:hover{color:var(--indigo)}
+.nav-ico{font-size:22px;line-height:1}
+.nav-lbl{font-size:10px;font-weight:500}
+@media(min-width:600px){.bottom-nav{max-width:520px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-left">
+    <div class="header-logo">🏆</div>
+    <div>
+      <div class="header-title" id="app-header-title">Ma Boutique</div>
+      <div class="header-sub">Paramètres</div>
+    </div>
+  </div>
+  <button class="header-btn" onclick="handleLogout()">🚪</button>
+</div>
+
+<div id="sub-banner"></div>
+
+<div class="content">
+
+  <!-- ── 1. INFOS BOUTIQUE ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-ico indigo">🏪</div>
+      <div>
+        <div class="section-title">Informations boutique</div>
+        <div class="section-sub">Nom, catégorie, coordonnées</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field"><label>Nom de la boutique</label><input type="text" id="cfg-nom" placeholder="Ex: Chez Marie"></div>
+      <div class="field"><label>Téléphone / WhatsApp</label><input type="tel" id="cfg-tel" placeholder="237 6XX XXX XXX"></div>
+      <div class="field"><label>Adresse / Ville</label><input type="text" id="cfg-adresse" placeholder="Ex: Yaoundé, Bastos"></div>
+      <button class="btn-save" onclick="saveInfos()">
+        <span id="save-infos-txt">💾 Sauvegarder</span>
+        <div class="spinner" id="spin-infos"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 2. SYSTÈME DE POINTS ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-ico gold">⭐</div>
+      <div>
+        <div class="section-title">Système de points</div>
+        <div class="section-sub">Comment les points sont calculés</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="mode-grid">
+        <div class="mode-btn selected" id="mode-regle" onclick="setMode('regle_de_trois',this)">
+          <div class="m-ico">📐</div>
+          <div class="m-lbl">Règle de 3</div>
+        </div>
+        <div class="mode-btn" id="mode-pct" onclick="setMode('pourcentage',this)">
+          <div class="m-ico">%</div>
+          <div class="m-lbl">Pourcentage</div>
+        </div>
+        <div class="mode-btn" id="mode-fixe" onclick="setMode('fixe',this)">
+          <div class="m-ico">🔢</div>
+          <div class="m-lbl">Fixe</div>
+        </div>
+      </div>
+
+      <!-- Config règle de trois -->
+      <div class="mode-config show" id="config-regle_de_trois">
+        <div class="form-row">
+          <div class="field">
+            <label>Montant de référence (FCFA)</label>
+            <input type="number" id="pts-montant-ref" placeholder="Ex: 1000" min="1">
+          </div>
+          <div class="field">
+            <label>Points attribués</label>
+            <input type="number" id="pts-points-ref" placeholder="Ex: 10" min="1">
+          </div>
+        </div>
+        <div class="field-hint">💡 Pour chaque <strong id="hint-montant">1000</strong> FCFA dépensés, le client gagne <strong id="hint-pts">10</strong> points.</div>
+      </div>
+
+      <!-- Config pourcentage -->
+      <div class="mode-config" id="config-pourcentage">
+        <div class="field">
+          <label>Pourcentage du montant (%)</label>
+          <input type="number" id="pts-pct" placeholder="Ex: 5" min="0.1" max="100" step="0.1">
+        </div>
+        <div class="field-hint">💡 Pour un achat de 1000 FCFA, le client gagne <strong id="hint-pct">50</strong> points.</div>
+      </div>
+
+      <!-- Config fixe -->
+      <div class="mode-config" id="config-fixe">
+        <div class="field">
+          <label>Points fixes par achat</label>
+          <input type="number" id="pts-fixe" placeholder="Ex: 5" min="1">
+        </div>
+        <div class="field-hint">💡 Le client gagne toujours le même nombre de points, quel que soit le montant.</div>
+      </div>
+
+      <button class="btn-save" onclick="savePoints()">
+        <span id="save-pts-txt">💾 Sauvegarder les points</span>
+        <div class="spinner" id="spin-pts"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 3. MESSAGES WHATSAPP ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-ico green">💬</div>
+      <div>
+        <div class="section-title">Messages WhatsApp</div>
+        <div class="section-sub">Personnalisez les messages automatiques</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:12.5px;color:var(--muted);margin-bottom:1rem;line-height:1.5">
+        Ces messages sont envoyés automatiquement après chaque action. Cliquez sur une variable pour l'insérer.
+      </p>
+
+      <!-- Message bienvenue -->
+      <div class="field">
+        <label>🎉 Message de bienvenue</label>
+        <div class="vars" id="vars-bienvenue">
+          <span class="var-chip" onclick="insertVar('bienvenue','{{nom}}')">{{nom}}</span>
+          <span class="var-chip" onclick="insertVar('bienvenue','{{boutique}}')">{{boutique}}</span>
+        </div>
+        <textarea id="msg-bienvenue" placeholder="Message envoyé lors de l'inscription du client..."></textarea>
+      </div>
+
+      <!-- Message achat -->
+      <div class="field">
+        <label>🛒 Confirmation d'achat</label>
+        <div class="vars" id="vars-achat">
+          <span class="var-chip" onclick="insertVar('achat','{{nom}}')">{{nom}}</span>
+          <span class="var-chip" onclick="insertVar('achat','{{boutique}}')">{{boutique}}</span>
+          <span class="var-chip" onclick="insertVar('achat','{{montant}}')">{{montant}}</span>
+          <span class="var-chip" onclick="insertVar('achat','{{pts}}')">{{pts}}</span>
+          <span class="var-chip" onclick="insertVar('achat','{{restants}}')">{{restants}}</span>
+        </div>
+        <textarea id="msg-achat" placeholder="Message envoyé après chaque achat..."></textarea>
+      </div>
+
+      <!-- Message échange -->
+      <div class="field">
+        <label>🎁 Confirmation d'échange</label>
+        <div class="vars" id="vars-echange">
+          <span class="var-chip" onclick="insertVar('echange','{{nom}}')">{{nom}}</span>
+          <span class="var-chip" onclick="insertVar('echange','{{boutique}}')">{{boutique}}</span>
+          <span class="var-chip" onclick="insertVar('echange','{{produit}}')">{{produit}}</span>
+          <span class="var-chip" onclick="insertVar('echange','{{pts}}')">{{pts}}</span>
+          <span class="var-chip" onclick="insertVar('echange','{{restants}}')">{{restants}}</span>
+        </div>
+        <textarea id="msg-echange" placeholder="Message envoyé après chaque échange..."></textarea>
+      </div>
+
+      <button class="btn-save" onclick="saveMessages()">
+        <span id="save-msg-txt">💾 Sauvegarder les messages</span>
+        <div class="spinner" id="spin-msg"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 4. GÉRANTS ── -->
+  <div class="section" id="section-gerants" style="display:none">
+    <div class="section-header">
+      <div class="section-ico indigo">👨‍💼</div>
+      <div>
+        <div class="section-title">Gérants</div>
+        <div class="section-sub">Gérez les accès de vos employés</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div id="gerants-list"><div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Chargement...</div></div>
+      <button class="btn-add-gerant" onclick="openModalGerant()">➕ Ajouter un gérant</button>
+    </div>
+  </div>
+
+  <!-- ── 5. DÉCONNEXION ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-ico red">🚪</div>
+      <div>
+        <div class="section-title">Session</div>
+        <div class="section-sub">Déconnexion et sécurité</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:1rem">
+        Boutique : <strong id="session-boutique">—</strong><br>
+        Rôle : <strong id="session-role">—</strong>
+      </p>
+      <button class="btn-danger-outline" onclick="handleLogout()">🚪 Se déconnecter</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal ajouter gérant -->
+<div class="modal-overlay" id="modal-gerant">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">
+      👨‍💼 Ajouter un gérant
+      <button class="modal-close" onclick="closeModalGerant()">✕</button>
+    </div>
+    <div class="msg" id="msg-gerant"></div>
+    <div class="field"><label>Nom du gérant</label><input type="text" id="g-nom" placeholder="Prénom Nom"></div>
+    <div class="field"><label>Mot de passe</label><input type="password" id="g-pwd" placeholder="Créez un mot de passe"></div>
+    <div class="field"><label>Confirmer le mot de passe</label><input type="password" id="g-pwd2" placeholder="Répétez le mot de passe"></div>
+    <button class="btn-save" onclick="ajouterGerant()">
+      <span id="save-g-txt">✅ Créer le gérant</span>
+      <div class="spinner" id="spin-g"></div>
+    </button>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item" onclick="location.href='clients.html'"><span class="nav-ico">👥</span><span class="nav-lbl">Clients</span></button>
+  <button class="nav-item" onclick="location.href='scanner.html'"><span class="nav-ico">📷</span><span class="nav-lbl">Scanner</span></button>
+  <button class="nav-item" onclick="location.href='notifications.html'"><span class="nav-ico">🔔</span><span class="nav-lbl">Notifs</span></button>
+  <button class="nav-item active"><span class="nav-ico">⚙️</span><span class="nav-lbl">Réglages</span></button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script src="../assets/js/app-auth.js"></script>
+<script>
+function handleLogout() { window.appLogout(); }
+const boutiqueId = sessionStorage.getItem('lp_boutique_id');
+const role       = sessionStorage.getItem('lp_role');
+let currentMode  = 'regle_de_trois';
+
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = (type==='success'?'✅ ':'⚠️ ') + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ── Charger config boutique ───────────────────────────────────
+async function loadConfig() {
+  if (!boutiqueId) return;
+
+  // Session info
+  document.getElementById('session-boutique').textContent = sessionStorage.getItem('lp_boutique_nom') || boutiqueId;
+  document.getElementById('session-role').textContent     = role === 'gerant' ? '👨‍💼 Gérant' : '👤 Propriétaire';
+
+  // Bloquer totalement les gérants
+  if (role === 'gerant') {
+    document.body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:center;
+                  min-height:100vh;background:#f1f5f9;font-family:'DM Sans',sans-serif;padding:1rem">
+        <div style="background:#fff;border-radius:20px;padding:2.5rem;text-align:center;
+                    max-width:400px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.1)">
+          <div style="font-size:3rem;margin-bottom:1rem">🔒</div>
+          <h2 style="color:#1e1b4b;font-size:1.3rem;margin-bottom:.5rem;font-weight:700">
+            Accès restreint
+          </h2>
+          <p style="color:#64748b;margin-bottom:1.5rem;line-height:1.6;font-size:14px">
+            Seul le propriétaire peut accéder aux paramètres.<br>
+            Contactez le propriétaire de la boutique.
+          </p>
+          <a href="dashboard.html"
+             style="display:block;background:linear-gradient(135deg,#4338ca,#6d28d9);
+                    color:#fff;padding:.85rem;border-radius:12px;text-decoration:none;
+                    font-weight:600;font-size:15px">
+            ← Retour au tableau de bord
+          </a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Propriétaire uniquement
+  document.getElementById('section-gerants').style.display = 'block';
+  loadGerants();
+
+  try {
+    const snap = await db.collection('boutiques').doc(boutiqueId).get();
+    if (!snap.exists) return;
+    const d = snap.data();
+
+    // Infos boutique
+    document.getElementById('cfg-nom').value     = d.nom || '';
+    document.getElementById('cfg-tel').value     = d.telephone || '';
+    document.getElementById('cfg-adresse').value = d.adresse || '';
+
+    // Système de points
+    const pts = d.pointsConfig || { mode:'regle_de_trois', montantRef:1000, pointsRef:10 };
+    currentMode = pts.mode || 'regle_de_trois';
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.mode-config').forEach(c => c.classList.remove('show'));
+    const modeEl = document.getElementById('mode-' + (currentMode==='regle_de_trois'?'regle':currentMode==='pourcentage'?'pct':'fixe'));
+    if (modeEl) modeEl.classList.add('selected');
+    const configEl = document.getElementById('config-' + currentMode);
+    if (configEl) configEl.classList.add('show');
+
+    if (pts.montantRef) document.getElementById('pts-montant-ref').value = pts.montantRef;
+    if (pts.pointsRef)  document.getElementById('pts-points-ref').value  = pts.pointsRef;
+    if (pts.pourcentage) document.getElementById('pts-pct').value = pts.pourcentage;
+    if (pts.pointsFixes) document.getElementById('pts-fixe').value = pts.pointsFixes;
+
+    // Messages WhatsApp
+    const msgs = d.messagesConfig || {};
+    document.getElementById('msg-bienvenue').value = msgs.bienvenue ||
+`Bonjour {{nom}} ! 🎉
+
+Bienvenue parmi les clients fidèles de *{{boutique}}* !
+
+Votre carte de fidélité est désormais activée. À chaque achat vous cumulez des points que vous pouvez échanger contre des produits ou réductions.
+
+📲 Conservez ce numéro pour suivre vos points.
+
+Merci de votre confiance et à très bientôt ! 🙏`;
+
+    document.getElementById('msg-achat').value = msgs.achat ||
+`Bonjour {{nom}} ! ✅
+
+*{{boutique}}* confirme votre achat.
+
+🛒 Montant de l'achat : *{{montant}} FCFA*
+⭐ Points gagnés : *+{{pts}} pts*
+💰 Votre solde actuel : *{{restants}} pts*
+
+Plus vous achetez, plus vous gagnez ! Continuez comme ça 💪
+
+Merci de votre visite 😊`;
+
+    document.getElementById('msg-echange').value = msgs.echange ||
+`Bonjour {{nom}} ! 🎁
+
+*{{boutique}}* confirme votre échange de points.
+
+🎁 Produit obtenu : *{{produit}}*
+➖ Points utilisés : *{{pts}} pts*
+💰 Points restants : *{{restants}} pts*
+
+Profitez bien de votre récompense ! 🥳
+
+À bientôt chez *{{boutique}}* 👋`;
+
+  } catch(e) { toast('Erreur de chargement : ' + e.message, 'error'); }
+}
+
+// ── Mode points ───────────────────────────────────────────────
+function setMode(mode, btn) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.mode-config').forEach(c => c.classList.remove('show'));
+  btn.classList.add('selected');
+  document.getElementById('config-' + mode).classList.add('show');
+}
+
+// ── Sauvegardes ───────────────────────────────────────────────
+async function saveInfos() {
+  setSave('infos', true);
+  try {
+    await db.collection('boutiques').doc(boutiqueId).update({
+      nom:       document.getElementById('cfg-nom').value.trim(),
+      telephone: document.getElementById('cfg-tel').value.trim(),
+      adresse:   document.getElementById('cfg-adresse').value.trim()
+    });
+    sessionStorage.setItem('lp_boutique_nom', document.getElementById('cfg-nom').value.trim());
+    toast('Informations sauvegardées !', 'success');
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+  setSave('infos', false);
+}
+
+async function savePoints() {
+  setSave('pts', true);
+  try {
+    let config = { mode: currentMode };
+    if (currentMode === 'regle_de_trois') {
+      config.montantRef = parseInt(document.getElementById('pts-montant-ref').value) || 1000;
+      config.pointsRef  = parseInt(document.getElementById('pts-points-ref').value) || 10;
+    } else if (currentMode === 'pourcentage') {
+      config.pourcentage = parseFloat(document.getElementById('pts-pct').value) || 5;
+    } else {
+      config.pointsFixes = parseInt(document.getElementById('pts-fixe').value) || 5;
+    }
+    await db.collection('boutiques').doc(boutiqueId).update({ pointsConfig: config });
+    toast('Système de points sauvegardé !', 'success');
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+  setSave('pts', false);
+}
+
+async function saveMessages() {
+  setSave('msg', true);
+  try {
+    await db.collection('boutiques').doc(boutiqueId).update({
+      'messagesConfig.bienvenue': document.getElementById('msg-bienvenue').value.trim(),
+      'messagesConfig.achat':     document.getElementById('msg-achat').value.trim(),
+      'messagesConfig.echange':   document.getElementById('msg-echange').value.trim()
+    });
+    toast('Messages WhatsApp sauvegardés !', 'success');
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+  setSave('msg', false);
+}
+
+// ── Gérants ───────────────────────────────────────────────────
+async function loadGerants() {
+  try {
+    const snap = await db.collection('boutiques').doc(boutiqueId)
+      .collection('gerants').get();
+    const el = document.getElementById('gerants-list');
+    if (snap.empty) {
+      el.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Aucun gérant ajouté.</div>';
+      return;
+    }
+    el.innerHTML = snap.docs.map(d => {
+      const g = d.data();
+      const ini = (g.nom||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      return `
+      <div class="gerant-item">
+        <div class="gerant-info">
+          <div class="gerant-av">${ini}</div>
+          <div>
+            <div class="gerant-name">${g.nom||'—'}</div>
+            <div class="gerant-role">Gérant</div>
+          </div>
+        </div>
+        <button class="btn-del" onclick="supprimerGerant('${d.id}','${g.nom}')">🗑️</button>
+      </div>`;
+    }).join('');
+  } catch(e) {}
+}
+
+function openModalGerant() { document.getElementById('modal-gerant').classList.add('open'); }
+function closeModalGerant() {
+  document.getElementById('modal-gerant').classList.remove('open');
+  document.getElementById('g-nom').value = '';
+  document.getElementById('g-pwd').value = '';
+  document.getElementById('g-pwd2').value = '';
+  document.getElementById('msg-gerant').style.display = 'none';
+}
+
+async function ajouterGerant() {
+  const nom  = document.getElementById('g-nom').value.trim();
+  const pwd  = document.getElementById('g-pwd').value;
+  const pwd2 = document.getElementById('g-pwd2').value;
+  const msgEl = document.getElementById('msg-gerant');
+  msgEl.style.display = 'none';
+
+  if (!nom) { showMsg('msg-gerant','Entrez le nom du gérant.','error'); return; }
+  if (!pwd)  { showMsg('msg-gerant','Entrez un mot de passe.','error'); return; }
+  if (pwd !== pwd2) { showMsg('msg-gerant','Les mots de passe ne correspondent pas.','error'); return; }
+
+  document.getElementById('save-g-txt').style.opacity = '0';
+  document.getElementById('spin-g').style.display = 'block';
+
+  try {
+    const pwdHash = btoa(unescape(encodeURIComponent(pwd)));
+    await db.collection('boutiques').doc(boutiqueId)
+      .collection('gerants').add({
+        nom, motDePasse: pwdHash,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    toast('Gérant ajouté !', 'success');
+    closeModalGerant();
+    loadGerants();
+  } catch(e) { showMsg('msg-gerant','Erreur : '+e.message,'error'); }
+
+  document.getElementById('save-g-txt').style.opacity = '1';
+  document.getElementById('spin-g').style.display = 'none';
+}
+
+async function supprimerGerant(id, nom) {
+  if (!confirm(`Supprimer le gérant "${nom}" ?`)) return;
+  try {
+    await db.collection('boutiques').doc(boutiqueId).collection('gerants').doc(id).delete();
+    toast('Gérant supprimé.', 'success');
+    loadGerants();
+  } catch(e) { toast('Erreur : ' + e.message, 'error'); }
+}
+
+// ── Variables messages ────────────────────────────────────────
+function insertVar(field, variable) {
+  const ta = document.getElementById('msg-' + field);
+  const start = ta.selectionStart, end = ta.selectionEnd;
+  ta.value = ta.value.slice(0, start) + variable + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = start + variable.length;
+  ta.focus();
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function setSave(key, on) {
+  const btn  = document.getElementById('save-'+key+'-txt');
+  const spin = document.getElementById('spin-'+key);
+  if (btn)  btn.style.opacity  = on ? '0' : '1';
+  if (spin) spin.style.display = on ? 'block' : 'none';
+}
+function showMsg(id, txt, type) {
+  const el = document.getElementById(id);
+  el.className = `msg ${type}`;
+  el.innerHTML = `<span>${type==='error'?'⚠️':'✅'}</span> ${txt}`;
+  el.style.display = 'flex';
+}
+
+document.getElementById('modal-gerant').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-gerant')) closeModalGerant();
+});
+
+loadConfig();
+</script>
+</body>
+</html>

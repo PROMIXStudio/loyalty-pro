@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Clients — Loyalty Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--indigo:#4338ca;--violet:#6d28d9;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--muted:#64748b;--border:#e2e8f0;--bg:#f1f5f9;--surface:#fff;--ink:#0d0d1a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);padding-bottom:85px;min-height:100vh}
+.app-header{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;box-shadow:0 2px 12px rgba(67,56,202,.3)}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-logo{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.header-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem}
+.header-sub{font-size:11px;opacity:.7;margin-top:1px}
+.header-btn{width:36px;height:36px;background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px}
+.header-btn:hover{background:rgba(255,255,255,.25)}
+.content{padding:1.25rem;max-width:520px;margin:0 auto}
+
+/* Barre recherche + bouton ajout */
+.toolbar{display:flex;gap:10px;margin-bottom:1.25rem}
+.search-wrap{position:relative;flex:1}
+.search-wrap input{width:100%;padding:.65rem 1rem .65rem 2.5rem;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s}
+.search-wrap input:focus{border-color:var(--indigo)}
+.search-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--muted)}
+.btn-add{display:flex;align-items:center;gap:6px;padding:.65rem 1rem;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;box-shadow:0 4px 12px rgba(67,56,202,.3)}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.25rem}
+.stat-mini{background:var(--surface);border-radius:12px;padding:.875rem;border:1px solid var(--border);text-align:center}
+.stat-mini .v{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--indigo)}
+.stat-mini .l{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* Liste clients */
+.client-card{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s}
+.client-card:hover{border-color:var(--indigo);box-shadow:0 4px 16px rgba(67,56,202,.1);transform:translateX(2px)}
+.client-av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--violet));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
+.client-info{flex:1;min-width:0}
+.client-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-tel{font-size:12px;color:var(--muted);margin-top:2px}
+.client-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.pts-badge{background:var(--indigo);color:#fff;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
+.client-date{font-size:10px;color:var(--muted)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center;padding:0}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:1.5rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 1.25rem}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:var(--bg);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.field input{width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s;color:var(--ink)}
+.field input:focus{border-color:var(--indigo)}
+.btn-primary{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(67,56,202,.3)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.msg{padding:10px 14px;border-radius:9px;font-size:13px;margin-bottom:1rem;display:none;align-items:center;gap:8px}
+.msg.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:flex}
+.msg.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;display:flex}
+
+/* Fiche client */
+.fiche-header{text-align:center;padding:1rem 0 1.5rem}
+.fiche-av{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--violet));display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;margin:0 auto 1rem}
+.fiche-name{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}
+.fiche-tel{font-size:13px;color:var(--muted);margin-top:4px}
+.fiche-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:1.25rem 0}
+.fs-card{background:var(--bg);border-radius:12px;padding:.875rem;text-align:center}
+.fs-val{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--indigo)}
+.fs-lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.qr-container{display:flex;justify-content:center;margin:1.25rem 0;padding:1rem;background:var(--bg);border-radius:14px}
+.action-btns{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem}
+.btn-wa{background:#25d366;color:#fff;border:none;border-radius:12px;padding:.75rem;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-dl{background:var(--bg);color:var(--ink);border:1.5px solid var(--border);border-radius:12px;padding:.75rem;font-size:13.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px}
+.tx-item{display:flex;align-items:center;gap:10px;padding:.75rem 0;border-bottom:1px solid #f8fafc}
+.tx-item:last-child{border-bottom:none}
+.tx-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.tx-ico.achat{background:#d1fae5}.tx-ico.echange{background:#e0e7ff}
+.tx-info{flex:1;font-size:13px}
+.tx-pts{font-size:12px;font-weight:700}
+.tx-pts.pos{color:var(--success)}.tx-pts.neg{color:var(--danger)}
+
+/* Empty */
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted)}
+.empty-ico{font-size:3rem;margin-bottom:1rem}
+
+/* Toast */
+.toast{position:fixed;bottom:90px;left:1rem;right:1rem;max-width:400px;margin:0 auto;color:#fff;padding:12px 16px;border-radius:12px;font-size:13.5px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:toastIn .3s ease;text-align:center}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;padding:6px 0 8px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 14px;border-radius:10px;text-decoration:none;color:var(--muted);transition:all .2s;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
+.nav-item.active,.nav-item:hover{color:var(--indigo)}
+.nav-ico{font-size:22px;line-height:1}
+.nav-lbl{font-size:10px;font-weight:500}
+@media(min-width:600px){.bottom-nav{max-width:520px;left:50%;transform:translateX(-50%);border-radius:16px 16px 0 0}}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="header-left">
+    <div class="header-logo">🏆</div>
+    <div>
+      <div class="header-title" id="app-header-title">Ma Boutique</div>
+      <div class="header-sub">Clients fidèles</div>
+    </div>
+  </div>
+  <button class="header-btn" onclick="handleLogout()">🚪</button>
+</div>
+
+<div id="sub-banner"></div>
+
+<div class="content">
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-mini"><div class="v" id="s-total">0</div><div class="l">Clients</div></div>
+    <div class="stat-mini"><div class="v" id="s-pts" style="color:var(--warning)">0</div><div class="l">Points cumulés</div></div>
+    <div class="stat-mini"><div class="v" id="s-rest" style="color:var(--success)">0</div><div class="l">Points restants</div></div>
+  </div>
+
+  <!-- Barre outils -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-ico">🔍</span>
+      <input type="text" id="search" placeholder="Rechercher un client..." oninput="filterClients()">
+    </div>
+    <button class="btn-add" onclick="openModal('modal-add')">➕ Ajouter</button>
+  </div>
+
+  <!-- Liste -->
+  <div id="clients-list">
+    <div class="empty"><div class="empty-ico">⏳</div>Chargement...</div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item" onclick="location.href='dashboard.html'"><span class="nav-ico">🏠</span><span class="nav-lbl">Accueil</span></button>
+  <button class="nav-item active"><span class="nav-ico">👥</span><span class="nav-lbl">Clients</span></button>
+  <button class="nav-item" onclick="location.href='scanner.html'"><span class="nav-ico">📷</span><span class="nav-lbl">Scanner</span></button>
+  <button class="nav-item" onclick="location.href='notifications.html'"><span class="nav-ico">🔔</span><span class="nav-lbl">Notifs</span></button>
+  <button class="nav-item" onclick="location.href='parametres.html'"><span class="nav-ico">⚙️</span><span class="nav-lbl">Réglages</span></button>
+</nav>
+
+<!-- MODAL AJOUTER CLIENT -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">
+      ➕ Nouveau client
+      <button class="modal-close" onclick="closeModal('modal-add')">✕</button>
+    </div>
+    <div class="msg" id="msg-add"></div>
+    <div class="field">
+      <label>Nom complet *</label>
+      <input type="text" id="add-nom" placeholder="Prénom Nom">
+    </div>
+    <div class="field">
+      <label>Numéro WhatsApp *</label>
+      <input type="tel" id="add-tel" placeholder="237 6XX XXX XXX">
+    </div>
+    <button class="btn-primary" id="btn-add" onclick="ajouterClient()">
+      <span id="btn-add-txt">Enregistrer le client</span>
+      <div class="spinner" id="spin-add"></div>
+    </button>
+  </div>
+</div>
+
+<!-- MODAL FICHE CLIENT -->
+<div class="modal-overlay" id="modal-fiche">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">
+      Fiche client
+      <button class="modal-close" onclick="closeModal('modal-fiche')">✕</button>
+    </div>
+    <div class="fiche-header">
+      <div class="fiche-av" id="fiche-av">??</div>
+      <div class="fiche-name" id="fiche-name">—</div>
+      <div class="fiche-tel" id="fiche-tel">—</div>
+    </div>
+    <div class="fiche-stats">
+      <div class="fs-card"><div class="fs-val" id="f-cumules">0</div><div class="fs-lbl">Pts cumulés</div></div>
+      <div class="fs-card"><div class="fs-val" style="color:var(--success)" id="f-restants">0</div><div class="fs-lbl">Pts restants</div></div>
+      <div class="fs-card"><div class="fs-val" style="color:var(--danger)" id="f-echanges">0</div><div class="fs-lbl">Pts échangés</div></div>
+    </div>
+
+    <!-- QR Code -->
+    <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">🔲 Carte de fidélité</div>
+    <div class="qr-container">
+      <div id="qr-code"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-btns">
+      <button class="btn-wa" id="btn-wa" onclick="sendWhatsApp()">💬 WhatsApp</button>
+      <button class="btn-dl" onclick="downloadQR()">📥 QR Code</button>
+    </div>
+
+    <!-- Historique transactions -->
+    <div style="margin-top:1.25rem">
+      <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem">📋 Historique récent</div>
+      <div id="tx-list"><div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Chargement...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script src="../assets/js/app-auth.js"></script>
+<script>
+function handleLogout() { window.appLogout(); }
+
+const boutiqueId = sessionStorage.getItem('lp_boutique_id');
+let allClients   = [];
+let currentClient = null;
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = (type==='success'?'✅ ':'⚠️ ') + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── Chargement clients ────────────────────────────────────────
+async function loadClients() {
+  if (!boutiqueId) return;
+  try {
+    const snap = await db.collection('boutiques').doc(boutiqueId)
+      .collection('clients').orderBy('dateInscription','desc').get();
+    allClients = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateStats();
+    renderClients(allClients);
+  } catch(e) {
+    document.getElementById('clients-list').innerHTML =
+      '<div class="empty"><div class="empty-ico">⚠️</div>Erreur de chargement</div>';
+  }
+}
+
+function updateStats() {
+  let pts = 0, rest = 0;
+  allClients.forEach(c => { pts += c.pointsCumules||0; rest += c.pointsRestants||0; });
+  document.getElementById('s-total').textContent = allClients.length;
+  document.getElementById('s-pts').textContent   = pts >= 1000 ? (pts/1000).toFixed(1)+'k' : pts;
+  document.getElementById('s-rest').textContent  = rest >= 1000 ? (rest/1000).toFixed(1)+'k' : rest;
+}
+
+function filterClients() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const list = q ? allClients.filter(c =>
+    (c.nom||'').toLowerCase().includes(q) ||
+    (c.telephone||'').toLowerCase().includes(q)
+  ) : allClients;
+  renderClients(list);
+}
+
+function renderClients(list) {
+  const el = document.getElementById('clients-list');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty">
+      <div class="empty-ico">👥</div>
+      ${allClients.length === 0
+        ? 'Aucun client.<br><strong style="color:var(--indigo)">Ajoutez votre premier client !</strong>'
+        : 'Aucun résultat pour cette recherche.'}
+    </div>`;
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const ini = (c.nom||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return `
+    <div class="client-card" onclick="openFiche('${c.id}')">
+      <div class="client-av">${ini}</div>
+      <div class="client-info">
+        <div class="client-name">${c.nom||'—'}</div>
+        <div class="client-tel">📞 ${c.telephone||'—'}</div>
+      </div>
+      <div class="client-right">
+        <div class="pts-badge">⭐ ${c.pointsRestants||0} pts</div>
+        <div class="client-date">${fmtDate(c.dateInscription)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Ajouter client ────────────────────────────────────────────
+async function ajouterClient() {
+  const nom = document.getElementById('add-nom').value.trim();
+  const tel = document.getElementById('add-tel').value.trim();
+  const msgEl = document.getElementById('msg-add');
+  msgEl.style.display = 'none';
+
+  if (!nom) { showMsg('msg-add','Entrez le nom du client.','error'); return; }
+  if (!tel)  { showMsg('msg-add','Entrez le numéro WhatsApp.','error'); return; }
+
+  document.getElementById('btn-add').disabled = true;
+  document.getElementById('spin-add').style.display = 'block';
+  document.getElementById('btn-add-txt').style.opacity = '0';
+
+  try {
+    // Créer le client dans Firestore
+    const ref = await db.collection('boutiques').doc(boutiqueId)
+      .collection('clients').add({
+        nom, telephone: tel,
+        pointsCumules:  0,
+        pointsRestants: 0,
+        pointsEchanges: 0,
+        dateInscription: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+    // Mettre à jour le compteur de la boutique
+    await db.collection('boutiques').doc(boutiqueId).update({
+      totalClients: firebase.firestore.FieldValue.increment(1)
+    });
+
+    // Récupérer config messages de la boutique
+    const bSnap = await db.collection('boutiques').doc(boutiqueId).get();
+    const boutique = bSnap.data();
+    const msgBienvenue = boutique.messagesConfig?.bienvenue ||
+      `Bonjour ${nom} ! 🎉\n\nBienvenue parmi les clients fidèles de *${boutique.nom||'notre boutique'}* !\n\nVotre carte de fidélité est activée. À chaque achat, vous cumulez des points échangeables contre des produits gratuits.\n\nMerci de votre confiance ! 🙏`;
+
+    // Envoyer message WhatsApp de bienvenue
+    const telClean = tel.replace(/[^0-9+]/g,'');
+    window.open(`https://wa.me/${telClean}?text=${encodeURIComponent(msgBienvenue)}`, '_blank');
+
+    toast('Client ajouté ! Message WhatsApp ouvert.', 'success');
+    closeModal('modal-add');
+    document.getElementById('add-nom').value = '';
+    document.getElementById('add-tel').value = '';
+    await loadClients();
+
+  } catch(e) {
+    showMsg('msg-add', 'Erreur : ' + e.message, 'error');
+  }
+
+  document.getElementById('btn-add').disabled = false;
+  document.getElementById('spin-add').style.display = 'none';
+  document.getElementById('btn-add-txt').style.opacity = '1';
+}
+
+// ── Fiche client ──────────────────────────────────────────────
+async function openFiche(clientId) {
+  currentClient = allClients.find(c => c.id === clientId);
+  if (!currentClient) return;
+
+  const ini = (currentClient.nom||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('fiche-av').textContent   = ini;
+  document.getElementById('fiche-name').textContent = currentClient.nom || '—';
+  document.getElementById('fiche-tel').textContent  = '📞 ' + (currentClient.telephone || '—');
+  document.getElementById('f-cumules').textContent  = currentClient.pointsCumules  || 0;
+  document.getElementById('f-restants').textContent = currentClient.pointsRestants || 0;
+  document.getElementById('f-echanges').textContent = currentClient.pointsEchanges || 0;
+
+  // Générer QR Code
+  const qrEl = document.getElementById('qr-code');
+  qrEl.innerHTML = '';
+  new QRCode(qrEl, {
+    text:         `LP:${boutiqueId}:${clientId}`,
+    width:        180,
+    height:       180,
+    colorDark:    '#1e1b4b',
+    colorLight:   '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  // Charger transactions récentes
+  try {
+    const txSnap = await db.collection('boutiques').doc(boutiqueId)
+      .collection('clients').doc(clientId)
+      .collection('transactions').orderBy('date','desc').limit(10).get();
+
+    const txEl = document.getElementById('tx-list');
+    if (txSnap.empty) {
+      txEl.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Aucune transaction</div>';
+    } else {
+      txEl.innerHTML = txSnap.docs.map(d => {
+        const tx = d.data();
+        const isAchat = tx.type === 'achat';
+        return `
+        <div class="tx-item">
+          <div class="tx-ico ${isAchat?'achat':'echange'}">${isAchat?'🛒':'🎁'}</div>
+          <div class="tx-info">
+            <div style="font-weight:600;font-size:13px">${isAchat?'Achat':'Échange'}</div>
+            <div style="font-size:11px;color:var(--muted)">${fmtDate(tx.date)}</div>
+          </div>
+          <div class="tx-pts ${tx.points>0?'pos':'neg'}">${tx.points>0?'+':''}${tx.points} pts</div>
+        </div>`;
+      }).join('');
+    }
+  } catch(e) {}
+
+  openModal('modal-fiche');
+}
+
+function sendWhatsApp() {
+  if (!currentClient) return;
+  const tel = (currentClient.telephone||'').replace(/[^0-9+]/g,'');
+  const msg = `Bonjour ${currentClient.nom} ! 😊\n\n`+
+    `Votre solde de points : ⭐ ${currentClient.pointsRestants||0} pts\n`+
+    `Points cumulés : ${currentClient.pointsCumules||0} pts`;
+  window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function downloadQR() {
+  const canvas = document.querySelector('#qr-code canvas');
+  if (!canvas) return;
+  const a = document.createElement('a');
+  a.download = `fidelite-${(currentClient?.nom||'client').replace(/\s/g,'-')}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  toast('QR Code téléchargé !', 'success');
+}
+
+function showMsg(id, txt, type) {
+  const el = document.getElementById(id);
+  el.className = `msg ${type}`;
+  el.innerHTML = `<span>${type==='error'?'⚠️':'✅'}</span> ${txt}`;
+  el.style.display = 'flex';
+}
+
+// Fermer modal en cliquant dehors
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+loadClients();
+</script>
+<script>
+// Restriction gérant — cacher paramètres dans la nav
+if (sessionStorage.getItem('lp_role') === 'gerant') {
+  document.querySelectorAll('.nav-item').forEach(item => {
+    if (item.textContent.includes('Réglages')) item.style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>

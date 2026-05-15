@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mode Test — Loyalty Pro Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+
+:root{--ink:#0d0d1a;--ink2:#1a1a2e;--indigo:#4338ca;--indigo-l:#e0e7ff;--violet:#6d28d9;--gold:#f59e0b;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;--muted:#64748b;--border:#e2e8f0;--bg:#f1f5f9;--surface:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);display:flex;min-height:100vh}
+/* SIDEBAR */
+.sidebar{width:250px;background:var(--ink2);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;padding:1.5rem 1rem;z-index:100;transition:transform .3s;overflow-y:auto}
+.sidebar-logo{display:flex;align-items:center;gap:10px;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:1.5rem;flex-shrink:0}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--indigo),var(--violet));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-txt{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:#fff}
+.logo-txt span{color:var(--gold)}
+.logo-badge{font-size:9px;font-weight:700;background:var(--indigo);color:#fff;padding:2px 6px;border-radius:4px;margin-left:auto;text-transform:uppercase}
+.nav-section{font-size:10px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1.5px;padding:0 10px;margin:1rem 0 .5rem;display:block;width:100%}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;color:rgba(255,255,255,.55);text-decoration:none;font-size:13.5px;font-weight:500;margin-bottom:2px;transition:all .2s;width:100%}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:linear-gradient(135deg,rgba(67,56,202,.6),rgba(109,40,217,.4));color:#fff}
+.nav-item .ico{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.sidebar-footer{margin-top:auto;padding-top:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.admin-info{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.admin-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--violet));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.admin-nm{font-size:12px;font-weight:600;color:#fff}
+.admin-rl{font-size:11px;color:rgba(255,255,255,.35)}
+.btn-logout{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;width:100%;background:rgba(239,68,68,.1);color:#fca5a5;border:none;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;margin-top:8px;transition:all .2s}
+.btn-logout:hover{background:rgba(239,68,68,.2)}
+/* MAIN */
+.main{margin-left:250px;flex:1;padding:2rem;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+.topbar h1{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--ink)}
+.topbar p{font-size:13px;color:var(--muted);margin-top:2px}
+/* BOUTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:.6rem 1.2rem;border-radius:9px;font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:'DM Sans',sans-serif;white-space:nowrap;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-ghost{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--indigo);color:var(--indigo)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:.35rem .75rem;font-size:12px}
+/* CARDS */
+.card{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:1.5rem}
+.card-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:1.25rem}
+/* TABLES */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--bg);font-weight:600;text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid #f8fafc;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%}
+.b-actif{background:#d1fae5;color:#065f46}.b-actif::before{background:#10b981}
+.b-essai{background:#dbeafe;color:#1e40af}.b-essai::before{background:#3b82f6}
+.b-alerte{background:#fef3c7;color:#92400e}.b-alerte::before{background:#f59e0b}
+.b-critique{background:#fee2e2;color:#991b1b}.b-critique::before{background:#ef4444}
+.b-expire{background:#f3f4f6;color:#374151}.b-expire::before{background:#9ca3af}
+.b-suspendu{background:#fce7f3;color:#9d174d}.b-suspendu::before{background:#ec4899}
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.modal-title{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--bg)}
+.form-group{margin-bottom:1.1rem}
+.form-group label{display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:5px}
+.form-control{width:100%;padding:.65rem .9rem;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s;color:var(--ink)}
+.form-control:focus{border-color:var(--indigo)}
+textarea.form-control{resize:vertical;min-height:100px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;color:#fff;padding:12px 20px;border-radius:10px;font-size:13.5px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:toastIn .3s ease;max-width:320px}
+.toast.success{background:var(--success)}.toast.error{background:var(--danger)}.toast.info{background:var(--indigo)}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+/* SPINNER */
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* EMPTY */
+.empty-state{text-align:center;padding:2.5rem;color:var(--muted);font-size:13px}
+/* HAMBURGER */
+.hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--indigo);color:#fff;border:none;border-radius:8px;width:38px;height:38px;font-size:20px;cursor:pointer;align-items:center;justify-content:center}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}
+  .mob-overlay.show{display:block}
+  .main{margin-left:0;padding:1rem;padding-top:4rem}
+  .hamburger{display:flex}
+  .form-row{grid-template-columns:1fr}
+}
+
+.page-grid{display:grid;grid-template-columns:400px 1fr;gap:1.5rem;align-items:start}
+.card{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:1.5rem}
+.card-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
+
+/* Panel test */
+.test-panel{background:#fffbeb;border:2px dashed #f59e0b;border-radius:14px;padding:1.5rem}
+.test-panel-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#92400e;margin-bottom:.5rem;display:flex;align-items:center;gap:8px}
+.test-panel-sub{font-size:13px;color:#b45309;margin-bottom:1.5rem;line-height:1.6}
+
+/* Durées rapides */
+.duree-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.duree-btn{padding:.75rem;border-radius:10px;border:2px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;transition:all .2s;font-family:'DM Sans',sans-serif}
+.duree-btn:hover{border-color:var(--indigo);background:var(--indigo-l)}
+.duree-btn.selected{border-color:var(--indigo);background:var(--indigo-l)}
+.duree-btn .d-val{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--indigo)}
+.duree-btn .d-lbl{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Sélecteur boutique */
+.form-group{margin-bottom:1.1rem}
+.form-group label{display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:5px}
+.form-control{width:100%;padding:.65rem .9rem;border:1.5px solid var(--border);border-radius:9px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;background:var(--surface);transition:border .2s;color:var(--ink)}
+.form-control:focus{border-color:var(--indigo)}
+
+/* Custom durée */
+.custom-row{display:flex;align-items:center;gap:8px}
+.custom-row input{flex:1}
+
+/* Liste boutiques en mode test */
+.test-list{display:flex;flex-direction:column;gap:10px}
+.test-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:var(--surface);transition:all .2s}
+.test-item:hover{border-color:var(--indigo)}
+.test-item.active-test{border-color:#f59e0b;background:#fffbeb}
+.ti-left{display:flex;align-items:center;gap:12px}
+.ti-ico{width:38px;height:38px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ti-name{font-weight:600;font-size:14px;color:var(--ink)}
+.ti-id{font-size:11px;color:var(--muted);font-family:monospace}
+.ti-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+
+/* Countdown */
+.countdown-badge{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;padding:4px 12px;border-radius:20px;background:#fef3c7;color:#92400e;min-width:70px;text-align:center}
+.countdown-badge.danger{background:#fee2e2;color:#991b1b}
+.countdown-badge.ok{background:#d1fae5;color:#065f46}
+
+/* Info box */
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:1rem 1.25rem;font-size:13px;color:#1d4ed8;line-height:1.6;margin-bottom:1.25rem}
+.info-box strong{font-weight:600}
+.warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:1rem 1.25rem;font-size:13px;color:#92400e;line-height:1.6;margin-top:1rem}
+
+.empty-state{text-align:center;padding:3rem 2rem;color:var(--muted);font-size:14px}
+
+.hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--indigo);color:#fff;border:none;border-radius:8px;width:38px;height:38px;font-size:20px;cursor:pointer;align-items:center;justify-content:center}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+@media(max-width:1000px){.page-grid{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:none}
+  .mob-overlay.show{display:block}.main{margin-left:0;padding:1rem;padding-top:4rem}
+  .hamburger{display:flex}.duree-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="mob-overlay" id="mob-overlay" onclick="toggleSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏆</div>
+    <div class="logo-txt">Loyalty<span>Pro</span></div>
+    <span class="logo-badge">Admin</span>
+  </div>
+  <div class="nav-section">Principal</div>
+  <a class="nav-item" href="dashboard.html"><span class="ico">📊</span> Tableau de bord</a>
+  <a class="nav-item" href="boutiques.html"><span class="ico">🏪</span> Boutiques</a>
+  <a class="nav-item" href="proprietaires.html"><span class="ico">👥</span> Propriétaires</a>
+  <a class="nav-item" href="abonnements.html"><span class="ico">📅</span> Abonnements</a>
+  <div class="nav-section">Outils</div>
+  <a class="nav-item active" href="test-mode.html"><span class="ico">🧪</span> Mode test</a>
+  <a class="nav-item" href="messages.html"><span class="ico">📣</span> Messages</a>
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-av" id="admin-av">A</div>
+      <div>
+        <div class="admin-nm" id="admin-nm">Admin</div>
+        <div class="admin-rl">Super administrateur</div>
+      </div>
+    </div>
+    <button class="btn-logout" type="button" onclick="handleLogout()">🚪 Se déconnecter</button>
+  </div>
+</nav>
+
+<main class="main">
+<div class="topbar">
+    <div>
+      <h1>🧪 Mode Test</h1>
+      <p>Configurez des abonnements de courte durée pour tester le comportement de l'application</p>
+    </div>
+  </div>
+
+  <div class="page-grid">
+
+    <!-- ── PANNEAU DE CONFIGURATION ── -->
+    <div>
+      <div class="test-panel">
+        <div class="test-panel-title">⚡ Activer le mode test</div>
+        <p class="test-panel-sub">
+          Attribuez une durée d'abonnement très courte à une boutique pour tester rapidement
+          les notifications d'expiration, le blocage automatique et le processus de renouvellement.
+        </p>
+
+        <div class="info-box">
+          <strong>Comment ça marche :</strong><br>
+          1. Sélectionnez une boutique<br>
+          2. Choisissez une durée courte (ex : 5 minutes)<br>
+          3. Cliquez "Appliquer" — l'abonnement démarre immédiatement<br>
+          4. Observez les notifications et le blocage côté boutique
+        </div>
+
+        <!-- Sélecteur boutique -->
+        <div class="form-group">
+          <label>🏪 Boutique à tester</label>
+          <select class="form-control" id="select-boutique">
+            <option value="">— Choisir une boutique —</option>
+          </select>
+        </div>
+
+        <!-- Durées rapides -->
+        <div class="form-group">
+          <label>⏱️ Durée de test</label>
+          <div class="duree-grid" id="duree-grid">
+            <div class="duree-btn" onclick="selectDuree(1,this)">
+              <div class="d-val">1</div><div class="d-lbl">minute</div>
+            </div>
+            <div class="duree-btn selected" onclick="selectDuree(5,this)">
+              <div class="d-val">5</div><div class="d-lbl">minutes</div>
+            </div>
+            <div class="duree-btn" onclick="selectDuree(15,this)">
+              <div class="d-val">15</div><div class="d-lbl">minutes</div>
+            </div>
+            <div class="duree-btn" onclick="selectDuree(30,this)">
+              <div class="d-val">30</div><div class="d-lbl">minutes</div>
+            </div>
+            <div class="duree-btn" onclick="selectDuree(60,this)">
+              <div class="d-val">1</div><div class="d-lbl">heure</div>
+            </div>
+            <div class="duree-btn" onclick="selectDuree(1440,this)">
+              <div class="d-val">1</div><div class="d-lbl">jour</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Durée personnalisée -->
+        <div class="form-group">
+          <label>✏️ Durée personnalisée (en minutes)</label>
+          <div class="custom-row">
+            <input type="number" class="form-control" id="custom-duree" placeholder="Ex: 10" min="1" max="99999" oninput="onCustomInput()">
+            <span style="font-size:13px;color:var(--muted);white-space:nowrap">minutes</span>
+          </div>
+        </div>
+
+        <!-- Boutons action -->
+        <div style="display:flex;gap:10px;margin-top:.5rem">
+          <button class="btn btn-primary" id="btn-appliquer" onclick="appliquerTest()" style="flex:1">
+            <span id="btn-app-txt">⚡ Appliquer le test</span>
+            <div class="spinner" id="spin-app"></div>
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="desactiverTest()">
+            🔒 Expirer maintenant
+          </button>
+        </div>
+
+        <div class="warn-box">
+          ⚠️ <strong>Attention :</strong> En cliquant "Expirer maintenant", l'abonnement de la boutique
+          sélectionnée sera immédiatement bloqué, même si une action est en cours côté utilisateur.
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LISTE DES BOUTIQUES EN MODE TEST ── -->
+    <div>
+      <div class="card">
+        <div class="card-title">
+          🧪 Boutiques en mode test actif
+          <span id="test-count" style="font-size:12px;font-weight:400;color:var(--muted);margin-left:auto">0 boutique</span>
+        </div>
+        <div class="test-list" id="test-list">
+          <div class="empty-state">Aucune boutique en mode test actuellement.</div>
+        </div>
+      </div>
+
+      <!-- Toutes les boutiques -->
+      <div class="card" style="margin-top:1.5rem">
+        <div class="card-title">
+          🏪 Toutes les boutiques
+          <span id="all-count" style="font-size:12px;font-weight:400;color:var(--muted);margin-left:auto">—</span>
+        </div>
+        <div class="test-list" id="all-list">
+          <div class="empty-state">Chargement...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/auth.js"></script>
+<script>
+
+function handleLogout() { window.lpLogout ? window.lpLogout() : (sessionStorage.clear(), window.location.replace("index.html")); }
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('mob-overlay').classList.toggle('show');
+}
+function toast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = (type==='success'?'✅ ':type==='error'?'⚠️ ':'ℹ️ ') + msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function fmtDate(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+function fmtDatetime(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+}
+function fmtMontant(n) { return Number(n||0).toLocaleString('fr-FR') + ' F'; }
+function getStatut(b) {
+  if (b.statut === 'suspendu') return 'suspendu';
+  const fin = b.abonnement?.fin?.toMillis?.() || 0;
+  const diff = fin - Date.now();
+  const jrs = Math.ceil(diff / 86400000);
+  if (diff <= 0) return 'expire';
+  if (jrs <= 1)  return 'critique';
+  if (jrs <= 3)  return 'alerte';
+  if (b.statut === 'essai') return 'essai';
+  return 'actif';
+}
+function jrsRestants(b) {
+  return Math.ceil(((b.abonnement?.fin?.toMillis?.() || 0) - Date.now()) / 86400000);
+}
+const BADGE_MAP = {
+  actif:    ['b-actif',    '✅ Actif'],    essai:    ['b-essai',    '🔵 Essai'],
+  alerte:   ['b-alerte',   '⚠️ Alerte'],   critique: ['b-critique', '🔴 Critique'],
+  expire:   ['b-expire',   '⛔ Expiré'],   suspendu: ['b-suspendu', '🔒 Suspendu'],
+};
+function badgeHTML(st) {
+  const [cls,lbl] = BADGE_MAP[st] || BADGE_MAP['expire'];
+  return '<span class="badge ' + cls + '">' + lbl + '</span>';
+}
+function setBtn(btnId, spinId, txtId, on) {
+  document.getElementById(btnId).disabled = on;
+  document.getElementById(spinId).style.display = on ? 'block' : 'none';
+  if (txtId) document.getElementById(txtId).style.opacity = on ? '0' : '1';
+}
+
+let allBoutiques = [];
+let selectedDuree = 5; // minutes par défaut
+let countdownTimers = {};
+
+// ── Sélection durée ───────────────────────────────────────────
+function selectDuree(min, btn) {
+  document.querySelectorAll('.duree-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedDuree = min;
+  document.getElementById('custom-duree').value = '';
+}
+function onCustomInput() {
+  document.querySelectorAll('.duree-btn').forEach(b => b.classList.remove('selected'));
+  const v = parseInt(document.getElementById('custom-duree').value);
+  if (v > 0) selectedDuree = v;
+}
+
+// ── Chargement boutiques ──────────────────────────────────────
+async function loadBoutiques() {
+  try {
+    const snap = await db.collection('boutiques').get();
+    allBoutiques = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Remplir le select
+    const sel = document.getElementById('select-boutique');
+    sel.innerHTML = '<option value="">— Choisir une boutique —</option>';
+    allBoutiques.forEach(b => {
+      const opt = document.createElement('option');
+      opt.value = b.id;
+      opt.textContent = `${b.nom || b.id} (${b.id})`;
+      sel.appendChild(opt);
+    });
+
+    document.getElementById('all-count').textContent = allBoutiques.length + ' boutique' + (allBoutiques.length > 1 ? 's' : '');
+    renderLists();
+  } catch(e) {
+    toast('Erreur chargement : ' + e.message, 'error');
+  }
+}
+
+// ── Rendu des listes ──────────────────────────────────────────
+function renderLists() {
+  const now = Date.now();
+  const enTest   = allBoutiques.filter(b => b.testMode?.actif);
+  const toutes   = allBoutiques;
+
+  // Boutiques en mode test
+  const testList = document.getElementById('test-list');
+  document.getElementById('test-count').textContent = enTest.length + ' boutique' + (enTest.length > 1 ? 's' : '');
+  if (!enTest.length) {
+    testList.innerHTML = '<div class="empty-state">Aucune boutique en mode test actuellement.</div>';
+  } else {
+    testList.innerHTML = enTest.map(b => renderTestItem(b, true)).join('');
+  }
+
+  // Toutes les boutiques
+  const allList = document.getElementById('all-list');
+  if (!toutes.length) {
+    allList.innerHTML = '<div class="empty-state">Aucune boutique enregistrée.</div>';
+  } else {
+    allList.innerHTML = toutes.map(b => renderTestItem(b, false)).join('');
+  }
+
+  // Démarrer les comptes à rebours
+  startAllCountdowns();
+}
+
+function renderTestItem(b, isTestPanel) {
+  const fin  = b.abonnement?.fin?.toMillis?.() || 0;
+  const diff = fin - Date.now();
+  const jrs  = Math.ceil(diff / 86400000);
+  const min  = Math.ceil(diff / 60000);
+  const isTest = b.testMode?.actif;
+
+  let timeStr = '—';
+  let badgeCls = 'ok';
+  if (diff <= 0) {
+    timeStr = 'Expiré';
+    badgeCls = 'danger';
+  } else if (min < 60) {
+    timeStr = min + ' min';
+    badgeCls = min <= 5 ? 'danger' : 'ok';
+  } else if (jrs < 2) {
+    timeStr = Math.ceil(diff / 3600000) + 'h';
+    badgeCls = 'ok';
+  } else {
+    timeStr = jrs + 'j';
+    badgeCls = jrs <= 5 ? 'danger' : 'ok';
+  }
+
+  return `
+  <div class="test-item${isTest ? ' active-test' : ''}" id="item-${b.id}">
+    <div class="ti-left">
+      <div class="ti-ico">${isTest ? '🧪' : '🏪'}</div>
+      <div>
+        <div class="ti-name">${b.nom || b.id}</div>
+        <div class="ti-id">${b.id}${isTest ? ' · Mode test actif' : ''}</div>
+      </div>
+    </div>
+    <div class="ti-right">
+      <div class="countdown-badge ${badgeCls}" id="cd-${b.id}">${timeStr}</div>
+      <button class="btn btn-ghost btn-sm" onclick="quickSelect('${b.id}')">Sélectionner</button>
+    </div>
+  </div>`;
+}
+
+// ── Sélection rapide depuis la liste ─────────────────────────
+function quickSelect(id) {
+  document.getElementById('select-boutique').value = id;
+  document.querySelector('.test-panel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Comptes à rebours en temps réel ──────────────────────────
+function startAllCountdowns() {
+  Object.values(countdownTimers).forEach(t => clearInterval(t));
+  countdownTimers = {};
+
+  allBoutiques.forEach(b => {
+    const el = document.getElementById('cd-' + b.id);
+    if (!el) return;
+    const fin = b.abonnement?.fin?.toMillis?.() || 0;
+
+    countdownTimers[b.id] = setInterval(() => {
+      const diff = fin - Date.now();
+      const min  = Math.ceil(diff / 60000);
+      const sec  = Math.ceil(diff / 1000);
+
+      if (diff <= 0) {
+        el.textContent = 'Expiré';
+        el.className   = 'countdown-badge danger';
+        clearInterval(countdownTimers[b.id]);
+      } else if (sec < 120) {
+        el.textContent = sec + 's';
+        el.className   = 'countdown-badge danger';
+      } else if (min < 60) {
+        el.textContent = min + ' min';
+        el.className   = `countdown-badge ${min <= 5 ? 'danger' : 'ok'}`;
+      } else {
+        clearInterval(countdownTimers[b.id]);
+      }
+    }, 1000);
+  });
+}
+
+// ── Appliquer le mode test ────────────────────────────────────
+async function appliquerTest() {
+  const boutiqueId = document.getElementById('select-boutique').value;
+  const custom     = parseInt(document.getElementById('custom-duree').value);
+  const dureeMin   = custom > 0 ? custom : selectedDuree;
+
+  if (!boutiqueId) { toast('Sélectionnez une boutique.', 'error'); return; }
+
+  const dureeMs = dureeMin * 60 * 1000;
+  const fin     = new Date(Date.now() + dureeMs);
+  const b       = allBoutiques.find(x => x.id === boutiqueId);
+
+  document.getElementById('btn-appliquer').disabled = true;
+  document.getElementById('spin-app').style.display = 'block';
+  document.getElementById('btn-app-txt').style.opacity = '0';
+
+  try {
+    await db.collection('boutiques').doc(boutiqueId).update({
+      statut: 'actif',
+      'abonnement.actif': true,
+      'abonnement.fin':   firebase.firestore.Timestamp.fromDate(fin),
+      'abonnement.dureeMs': dureeMs,
+      'testMode.actif':        true,
+      'testMode.dureeMinutes': dureeMin,
+      'testMode.activeLe':     firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    const finStr = dureeMin < 60
+      ? `${dureeMin} minute${dureeMin > 1 ? 's' : ''}`
+      : dureeMin < 1440
+        ? `${Math.round(dureeMin/60)} heure${Math.round(dureeMin/60) > 1 ? 's' : ''}`
+        : `${Math.round(dureeMin/1440)} jour${Math.round(dureeMin/1440) > 1 ? 's' : ''}`;
+
+    toast(`✅ Mode test activé pour "${b?.nom || boutiqueId}" — ${finStr}`, 'success');
+    await loadBoutiques();
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  }
+
+  document.getElementById('btn-appliquer').disabled = false;
+  document.getElementById('spin-app').style.display = 'none';
+  document.getElementById('btn-app-txt').style.opacity = '1';
+}
+
+// ── Expirer immédiatement ─────────────────────────────────────
+async function desactiverTest() {
+  const boutiqueId = document.getElementById('select-boutique').value;
+  if (!boutiqueId) { toast('Sélectionnez une boutique.', 'error'); return; }
+  const b = allBoutiques.find(x => x.id === boutiqueId);
+  if (!confirm(`Expirer immédiatement l'abonnement de "${b?.nom || boutiqueId}" ?`)) return;
+
+  try {
+    const passe = new Date(Date.now() - 1000);
+    await db.collection('boutiques').doc(boutiqueId).update({
+      statut: 'expire',
+      'abonnement.actif': false,
+      'abonnement.fin':   firebase.firestore.Timestamp.fromDate(passe),
+      'testMode.actif':   false
+    });
+    toast(`"${b?.nom || boutiqueId}" expirée immédiatement.`, 'success');
+    await loadBoutiques();
+  } catch(e) {
+    toast('Erreur : ' + e.message, 'error');
+  }
+}
+
+// ── Démarrage ─────────────────────────────────────────────────
+loadBoutiques();
+// Rafraîchir toutes les 30 secondes
+setInterval(loadBoutiques, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loyalty Pro — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+:root{--ink:#0d0d1a;--ink2:#1a1a2e;--indigo:#4338ca;--violet:#6d28d9;--gold:#f59e0b;--muted:#64748b;--border:#e2e8f0;--danger:#ef4444;--success:#10b981}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--ink);min-height:100vh;display:flex;overflow:hidden}
+.left{flex:0 0 45%;background:linear-gradient(135deg,#0d0d1a,#1a1a2e,#16213e);position:relative;display:flex;flex-direction:column;justify-content:center;padding:4rem 3rem;overflow:hidden}
+.left::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(99,102,241,.15),transparent 70%);top:-100px;left:-100px;border-radius:50%}
+.left::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(245,158,11,.08),transparent 70%);bottom:-80px;right:-80px;border-radius:50%}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:40px 40px}
+.brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:3rem;position:relative;z-index:2}
+.brand-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--indigo),var(--violet));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.brand-name{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#fff}
+.brand-name span{color:var(--gold)}
+.tagline{font-family:'Syne',sans-serif;font-size:2.6rem;font-weight:800;color:#fff;line-height:1.15;letter-spacing:-1px;margin-bottom:1.5rem;position:relative;z-index:2}
+.tagline em{font-style:normal;background:linear-gradient(90deg,var(--gold),#f97316);background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent;display:inline-block}
+.tagline-sub{font-size:.9rem;color:rgba(255,255,255,.45);line-height:1.7;max-width:300px;position:relative;z-index:2}
+.stats-row{display:flex;gap:1.5rem;margin-top:2.5rem;position:relative;z-index:2}
+.stat-item .val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;min-width:30px;display:inline-block}
+.stat-item .lbl{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.deco-card{position:relative;z-index:2;margin-top:2rem;align-self:flex-start;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.25rem 1.5rem;min-width:200px;animation:float 4s ease-in-out infinite}
+.deco-card .dc-dot{display:inline-block;width:8px;height:8px;background:var(--success);border-radius:50%;margin-right:6px;animation:pulse 2s infinite}
+.deco-card .dc-label{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px}
+.deco-card .dc-val{font-size:1.6rem;font-weight:700;color:var(--success);font-family:'Syne',sans-serif}
+.deco-card .dc-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:4px}
+/* Skeleton loader pour les stats */
+.skel{display:inline-block;width:30px;height:20px;background:linear-gradient(90deg,rgba(255,255,255,.1) 25%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.1) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;vertical-align:middle}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.right{flex:1;background:#f8f9ff;display:flex;align-items:center;justify-content:center;padding:3rem 2rem}
+.form-box{width:100%;max-width:420px;animation:fadeUp .5s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.form-box h2{font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:800;color:var(--ink);letter-spacing:-.5px;margin-bottom:6px}
+.form-box .sub{font-size:14px;color:var(--muted);margin-bottom:2.5rem}
+.steps{display:flex;align-items:center;gap:8px;margin-bottom:2rem}
+.step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--muted)}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all .3s}
+.step.active .step-num{background:var(--indigo);color:#fff}
+.step.done .step-num{background:var(--success);color:#fff}
+.step-line{flex:1;height:1px;background:var(--border)}
+.field{margin-bottom:1.25rem}
+.field label{display:block;font-size:13px;font-weight:500;color:#374151;margin-bottom:6px}
+.iw{position:relative}
+.iw .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);pointer-events:none}
+.iw input{width:100%;padding:.7rem 1rem .7rem 2.75rem;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:#fff;transition:border .2s,box-shadow .2s;color:var(--ink)}
+.iw input:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(67,56,202,.08)}
+.iw .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;color:var(--muted);background:none;border:none;padding:4px}
+.otp-grid{display:flex;gap:10px;justify-content:center;margin:1.5rem 0}
+.otp-grid input{width:50px;height:58px;border:1.5px solid var(--border);border-radius:10px;text-align:center;font-size:1.4rem;font-weight:700;font-family:'Syne',sans-serif;outline:none;background:#fff;transition:all .2s;color:var(--ink)}
+.otp-grid input:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(67,56,202,.08);transform:translateY(-2px)}
+.otp-grid input.filled{border-color:var(--indigo);background:#eef0ff}
+.btn-main{width:100%;padding:.85rem;background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.5rem}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(67,56,202,.35)}
+.btn-main:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+.forgot{text-align:right;margin-top:-.75rem;margin-bottom:1.25rem}
+.forgot a{font-size:13px;color:var(--indigo);text-decoration:none;font-weight:500}
+.msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:1rem;display:none;align-items:center;gap:8px}
+.msg.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;display:flex}
+.msg.success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;display:flex}
+.msg.info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;display:flex}
+.sec-note{display:flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:12px;color:#166534;margin-bottom:1.5rem}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.timer{text-align:center;font-size:13px;color:var(--muted);margin-top:.75rem}
+.timer span{font-weight:600;color:var(--indigo)}
+@media(max-width:768px){
+  .left{display:none}.right{background:var(--ink)}
+  .form-box h2{color:#fff}.form-box .sub{color:rgba(255,255,255,.5)}
+  .field label{color:rgba(255,255,255,.8)}
+  .iw input{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#fff}
+  .iw input:focus{border-color:var(--indigo);background:rgba(99,102,241,.08)}
+  .otp-grid input{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:#fff}
+  .otp-grid input.filled{background:rgba(99,102,241,.2)}
+  .step{color:rgba(255,255,255,.4)}.step-line{background:rgba(255,255,255,.1)}
+  .forgot a{color:#818cf8}
+  .sec-note{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.2);color:#6ee7b7}
+  .timer{color:rgba(255,255,255,.5)}.timer span{color:#818cf8}
+}
+</style>
+</head>
+<body>
+
+<!-- ── PANNEAU GAUCHE ── -->
+<div class="left">
+  <div class="grid"></div>
+  <div class="brand">
+    <div class="brand-icon">🏆</div>
+    <div class="brand-name">Loyalty<span>Pro</span></div>
+  </div>
+  <div class="tagline">Gérez vos<br>boutiques avec<br><em>précision.</em></div>
+  <p class="tagline-sub">Tableau de bord administrateur. Contrôle total sur les abonnements, boutiques et paiements.</p>
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="val" id="stat-boutiques"><span class="skel"></span></div>
+      <div class="lbl">Boutiques</div>
+    </div>
+    <div class="stat-item">
+      <div class="val" id="stat-actifs"><span class="skel"></span></div>
+      <div class="lbl">Actifs</div>
+    </div>
+    <div class="stat-item">
+      <div class="val" id="stat-renew"><span class="skel"></span></div>
+      <div class="lbl">Ce mois</div>
+    </div>
+  </div>
+  <div class="deco-card">
+    <div class="dc-label"><span class="dc-dot"></span>Renouvellements ce mois</div>
+    <div class="dc-val" id="deco-renew"><span class="skel"></span></div>
+    <div class="dc-sub">abonnements renouvelés</div>
+  </div>
+</div>
+
+<!-- ── PANNEAU DROIT ── -->
+<div class="right">
+  <div class="form-box">
+
+    <div id="step1">
+      <h2>Connexion Admin</h2>
+      <p class="sub">Accès réservé à l'administrateur Loyalty Pro</p>
+      <div class="steps">
+        <div class="step active"><div class="step-num">1</div><span>Identifiants</span></div>
+        <div class="step-line"></div>
+        <div class="step"><div class="step-num">2</div><span>Code 2FA</span></div>
+      </div>
+      <div class="msg" id="msg1"></div>
+      <div class="field">
+        <label>Adresse Gmail</label>
+        <div class="iw">
+          <span class="ico">✉️</span>
+          <input type="email" id="email" placeholder="admin@gmail.com" autocomplete="email">
+        </div>
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <div class="iw">
+          <span class="ico">🔑</span>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+          <button class="eye" type="button" onclick="togglePwd()">👁️</button>
+        </div>
+      </div>
+      <div class="forgot"><a href="#" onclick="showReset(event)">Mot de passe oublié ?</a></div>
+      <button class="btn-main" id="btn1" type="button" onclick="handleStep1()">
+        <span id="btn1-txt">Continuer</span>
+        <div class="spinner" id="spin1"></div>
+        <span id="btn1-arr">→</span>
+      </button>
+    </div>
+
+    <div id="step2" style="display:none">
+      <h2>Vérification 2FA</h2>
+      <p class="sub">Entrez le code à 6 chiffres envoyé à votre Gmail</p>
+      <div class="steps">
+        <div class="step done"><div class="step-num">✓</div><span>Identifiants</span></div>
+        <div class="step-line"></div>
+        <div class="step active"><div class="step-num">2</div><span>Code 2FA</span></div>
+      </div>
+      <div class="sec-note">🛡️ Code envoyé à <strong id="email-masked"></strong></div>
+      <div class="msg" id="msg2"></div>
+      <div class="otp-grid">
+        <input type="text" maxlength="1" class="otp" id="o1" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp" id="o2" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp" id="o3" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp" id="o4" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp" id="o5" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp" id="o6" inputmode="numeric">
+      </div>
+      <div class="timer">Code valide encore <span id="countdown">10:00</span></div>
+      <button class="btn-main" id="btn2" type="button" onclick="handleStep2()" style="margin-top:1rem">
+        <span id="btn2-txt">Accéder au tableau de bord</span>
+        <div class="spinner" id="spin2"></div>
+      </button>
+      <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:1.25rem">
+        Code non reçu ?
+        <a href="#" onclick="resendCode(event)" style="color:var(--indigo);font-weight:500">Renvoyer</a>
+        · <a href="#" onclick="backToStep1(event)" style="color:var(--muted)">Retour</a>
+      </p>
+    </div>
+
+    <div id="step-reset" style="display:none">
+      <h2>Réinitialisation</h2>
+      <p class="sub">Un lien sera envoyé à votre adresse Gmail</p>
+      <div class="msg" id="msg-reset"></div>
+      <div class="field">
+        <label>Adresse Gmail</label>
+        <div class="iw">
+          <span class="ico">✉️</span>
+          <input type="email" id="reset-email" placeholder="admin@gmail.com">
+        </div>
+      </div>
+      <button class="btn-main" id="btn-reset" type="button" onclick="handleReset()">
+        <span id="btn-reset-txt">Envoyer le lien</span>
+        <div class="spinner" id="spin-reset"></div>
+      </button>
+      <p style="text-align:center;font-size:13px;color:var(--muted);margin-top:1.25rem">
+        <a href="#" onclick="backToStep1(event)" style="color:var(--indigo);font-weight:500">← Retour</a>
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="../assets/js/firebase-config.js"></script>
+<script>
+const EMAILJS = {
+  PUBLIC_KEY:  "H6ZllSnhC_djulv9N",
+  SERVICE_ID:  "service_2ko98m9",
+  TEMPLATE_ID: "template_4g8f7rt"
+};
+emailjs.init(EMAILJS.PUBLIC_KEY);
+
+// Si déjà connecté → dashboard directement
+if (sessionStorage.getItem('lp_admin_verified') === 'true') {
+  window.location.replace('dashboard.html');
+}
+
+let currentUser = null;
+let twoFACode   = null;
+let codeExpiry  = null;
+let cdInterval  = null;
+
+// ── Stats : se chargent APRÈS connexion Firebase Auth ────────
+// On utilise onAuthStateChanged pour attendre que Firebase soit prêt
+// Mais pour la page login, on lit avec les règles publiques
+// Solution : utiliser signInAnonymously temporairement pour lire les stats
+async function loadStats() {
+  try {
+    // Connexion anonyme temporaire juste pour lire les stats
+    await auth.signInAnonymously();
+
+    const snap = await db.collection('boutiques').get();
+    const total = snap.size;
+    let actifs = 0;
+    snap.forEach(d => { if (d.data().statut === 'actif') actifs++; });
+
+    const debut = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const pSnap = await db.collection('paiements')
+      .where('date', '>=', firebase.firestore.Timestamp.fromDate(debut)).get();
+    const renew = pSnap.size;
+
+    // Afficher avec animation de comptage
+    animateCount('stat-boutiques', total);
+    animateCount('stat-actifs', actifs);
+    animateCount('stat-renew', renew);
+    animateCount('deco-renew', renew);
+
+    // Déconnecter l'anonyme après lecture
+    await auth.signOut();
+  } catch(e) {
+    // Si lecture anonyme échoue, afficher 0
+    ['stat-boutiques','stat-actifs','stat-renew','deco-renew'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '0';
+    });
+  }
+}
+
+// Animation comptage chiffres
+function animateCount(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const duration = 1000;
+  const start = Date.now();
+  const timer = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    el.textContent = Math.round(target * eased);
+    if (progress >= 1) clearInterval(timer);
+  }, 16);
+}
+
+// Lancer les stats au chargement
+loadStats();
+
+// ── Helpers UI ────────────────────────────────────────
+function showMsg(id, txt, type) {
+  const el = document.getElementById(id);
+  el.className = `msg ${type}`;
+  el.innerHTML = `<span>${type==='error'?'⚠️':type==='success'?'✅':'ℹ️'}</span> ${txt}`;
+  el.style.display = 'flex';
+}
+function hideMsg(id) { document.getElementById(id).style.display = 'none'; }
+function setLoading(btn, spin, txt, arr, on) {
+  document.getElementById(btn).disabled = on;
+  document.getElementById(spin).style.display = on ? 'block' : 'none';
+  if (txt) document.getElementById(txt).style.opacity = on ? '0' : '1';
+  if (arr) document.getElementById(arr).style.opacity = on ? '0' : '1';
+}
+function togglePwd() {
+  const i = document.getElementById('password');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+function startCountdown(ms) {
+  clearInterval(cdInterval);
+  const end = Date.now() + ms;
+  const el  = document.getElementById('countdown');
+  cdInterval = setInterval(() => {
+    const d = Math.max(0, end - Date.now());
+    const m = Math.floor(d/60000), s = Math.floor((d%60000)/1000);
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (d === 0) { clearInterval(cdInterval); showMsg('msg2','Code expiré.','error'); }
+  }, 1000);
+}
+
+// ── OTP ───────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.otp').forEach((inp, i, all) => {
+    inp.addEventListener('input', e => {
+      const v = e.target.value.replace(/\D/g,'');
+      inp.value = v;
+      inp.classList.toggle('filled', v !== '');
+      if (v && i < all.length-1) all[i+1].focus();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key==='Backspace' && !inp.value && i>0) all[i-1].focus();
+      if (e.key==='Enter') handleStep2();
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const txt = e.clipboardData.getData('text').replace(/\D/g,'').slice(0,6);
+      txt.split('').forEach((c,j) => { if (all[j]) { all[j].value=c; all[j].classList.add('filled'); }});
+      if (all[txt.length]) all[txt.length].focus();
+    });
+  });
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key==='Enter') handleStep1();
+  });
+});
+
+// ── Étape 1 ───────────────────────────────────────────
+async function handleStep1() {
+  const email = document.getElementById('email').value.trim();
+  const pwd   = document.getElementById('password').value;
+  hideMsg('msg1');
+  if (!email || !pwd) { showMsg('msg1','Remplissez tous les champs.','error'); return; }
+  setLoading('btn1','spin1','btn1-txt','btn1-arr', true);
+  try {
+    const result    = await auth.signInWithEmailAndPassword(email, pwd);
+    currentUser     = result.user;
+    const adminSnap = await db.collection('admins').doc(result.user.uid).get();
+    if (!adminSnap.exists) {
+      await auth.signOut(); currentUser = null;
+      showMsg('msg1','Accès refusé. Compte non administrateur.','error');
+      setLoading('btn1','spin1','btn1-txt','btn1-arr', false); return;
+    }
+    twoFACode  = Math.floor(100000 + Math.random()*900000).toString();
+    codeExpiry = Date.now() + 10*60*1000;
+    await db.collection('admins').doc(currentUser.uid).update({ twoFACode, twoFAExpiry: codeExpiry });
+    await emailjs.send(EMAILJS.SERVICE_ID, EMAILJS.TEMPLATE_ID, {
+      to_email: email, to_name: adminSnap.data().nom || 'Admin',
+      code: twoFACode, app_name: 'Loyalty Pro'
+    });
+    document.getElementById('email-masked').textContent = email.replace(/(.{2})(.*)(@.*)/,'$1***$3');
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    startCountdown(10*60*1000);
+    document.getElementById('o1').focus();
+  } catch(e) {
+    let msg = 'Identifiants incorrects.';
+    if (e.code==='auth/user-not-found')        msg = 'Aucun compte trouvé.';
+    if (e.code==='auth/wrong-password')         msg = 'Mot de passe incorrect.';
+    if (e.code==='auth/invalid-credential')     msg = 'Identifiants incorrects.';
+    if (e.code==='auth/too-many-requests')      msg = 'Trop de tentatives. Réessayez.';
+    if (e.code==='auth/network-request-failed') msg = 'Erreur réseau.';
+    if (e.code==='auth/unauthorized-domain')    msg = 'Domaine non autorisé. Ajoutez localhost dans Firebase → Authentication → Settings.';
+    showMsg('msg1', msg, 'error');
+    if (currentUser) { await auth.signOut(); currentUser = null; }
+  }
+  setLoading('btn1','spin1','btn1-txt','btn1-arr', false);
+}
+
+// ── Étape 2 ───────────────────────────────────────────
+async function handleStep2() {
+  const code = ['o1','o2','o3','o4','o5','o6'].map(id => document.getElementById(id).value).join('');
+  hideMsg('msg2');
+  if (code.length !== 6) { showMsg('msg2','Code incomplet.','error'); return; }
+  setLoading('btn2','spin2','btn2-txt', null, true);
+  try {
+    if (Date.now() > codeExpiry) { showMsg('msg2','Code expiré.','error'); setLoading('btn2','spin2','btn2-txt',null,false); return; }
+    if (twoFACode !== code) { showMsg('msg2','Code incorrect.','error'); setLoading('btn2','spin2','btn2-txt',null,false); return; }
+    await db.collection('admins').doc(currentUser.uid).update({
+      twoFACode: firebase.firestore.FieldValue.delete(),
+      twoFAExpiry: firebase.firestore.FieldValue.delete(),
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    clearInterval(cdInterval);
+    sessionStorage.setItem('lp_admin_verified', 'true');
+    sessionStorage.setItem('lp_admin_uid', currentUser.uid);
+    showMsg('msg2','Connexion réussie ! Redirection...','success');
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+  } catch(e) { showMsg('msg2','Erreur. Réessayez.','error'); }
+  setLoading('btn2','spin2','btn2-txt', null, false);
+}
+
+async function resendCode(e) {
+  e.preventDefault();
+  if (!currentUser) return;
+  twoFACode = Math.floor(100000+Math.random()*900000).toString();
+  codeExpiry = Date.now()+10*60*1000;
+  await db.collection('admins').doc(currentUser.uid).update({ twoFACode, twoFAExpiry: codeExpiry });
+  await emailjs.send(EMAILJS.SERVICE_ID, EMAILJS.TEMPLATE_ID, { to_email: currentUser.email, to_name:'Admin', code: twoFACode, app_name:'Loyalty Pro' });
+  document.querySelectorAll('.otp').forEach(i => { i.value=''; i.classList.remove('filled'); });
+  document.getElementById('o1').focus();
+  startCountdown(10*60*1000);
+  showMsg('msg2','Nouveau code envoyé !','info');
+}
+function showReset(e) {
+  e.preventDefault();
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step-reset').style.display = 'block';
+}
+async function handleReset() {
+  const email = document.getElementById('reset-email').value.trim();
+  hideMsg('msg-reset');
+  if (!email) { showMsg('msg-reset','Entrez votre email.','error'); return; }
+  setLoading('btn-reset','spin-reset','btn-reset-txt', null, true);
+  try { await auth.sendPasswordResetEmail(email); showMsg('msg-reset','Lien envoyé ! Vérifiez Gmail.','success'); }
+  catch(e) { showMsg('msg-reset','Email introuvable.','error'); }
+  setLoading('btn-reset','spin-reset','btn-reset-txt', null, false);
+}
+function backToStep1(e) {
+  e.preventDefault();
+  if (currentUser) { auth.signOut(); currentUser = null; }
+  clearInterval(cdInterval);
+  ['step2','step-reset'].forEach(id => document.getElementById(id).style.display='none');
+  document.getElementById('step1').style.display = 'block';
+  hideMsg('msg1');
+}
+</script>
+</body>
+</html>
