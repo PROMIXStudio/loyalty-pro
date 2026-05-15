@@ -12,7 +12,8 @@
 
     @viteReactRefresh
 
-    @vite('resources/js/app.jsx')
+    <link rel="stylesheet" href="/build/assets/app-BWoHBg36.css">
+<script type="module" src="/build/assets/app-BSQo_1mS.js"></script>
 
 </head>
 
